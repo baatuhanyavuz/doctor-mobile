@@ -1,0 +1,357 @@
+{
+  "id": "case_004",
+  "title": "Vaka #004: Son Simyacı",
+  "shortDescription": "Tarih profesörü 'taşa dönüşmüş' halde bulundu. Ölümsüzlük formülü mü?",
+  "fullDescription": "Prof. Orhan Veli üniversitede ölü bulundu. Vücudu kaskatı, rengi gri. Lokman Hekim'in formülü peşinde bir katil var.",
+  "difficulty": "hard",
+  "price": 199.99,
+  "status": "available",
+  "progressPercent": 0,
+  "coverImage": "assets/images/case_004/cover.jpg",
+  "introText": "Saat 03:45. Telefonun sesiyle irkildin. Arayan Üniversite Dekanıydı, sesi titriyordu. 'Hemen gelmen lazım. Prof. Orhan'ın odasında... açıklayamadığımız şeyler var.' Olay yerine vardığında polisler bile içeri girmeye korkuyordu. Profesör masasında oturuyordu ama artık bir insan değildi. Taşa dönüşmüştü.",
+  "crimeScene": "İstanbul Üni. Tarih Bölümü",
+  "officialReport": "ÖLÜM SEBEBİ BELİRSİZ. (Cesette açıklanamayan katılaşma ve grileşme mevcut. Radyasyon veya bilinmeyen kimyasal şüphesi.)",
+  "victim": {
+    "name": "Prof. Orhan Veli",
+    "age": 65,
+    "occupation": "Osmanlı Tarihi Profesörü",
+    "photoPath": "assets/images/case_004/victim_orhan.jpg",
+    "causeOfDeath": "Arsenik Zehirlenmesi",
+    "deathLocation": "Üniversite Ofisi",
+    "deathTime": "21:30",
+    "biography": "40 yıllık akademisyen. Lokman Hekim'in formülünü arıyordu."
+  },
+  "evidences": [
+    {
+      "id": "ev_vial",
+      "title": "Kırık Şişe ve Sıvı",
+      "description": "Kırmızı sıvı. Metalik kokuyor.",
+      "type": "forensic_sample",
+      "filePath": "assets/images/case_004/ev_vial_scene.jpg",
+      "location": "Ofis Zemini",
+      "discoveredAt": "22:00",
+      "isUnlocked": true,
+      "isLocked": false,
+      "forensicData": {
+        "initialImageUrl": "assets/images/case_004/lab_liquid_red.jpg",
+        "resultImageUrl": "assets/images/case_004/lab_liquid_gold.jpg",
+        "resultText": "ANALİZ: %80 Cıva, %20 Altın Tozu - simya iksiri. İÇİNDE ARSENİK TESPİT EDİLDİ!",
+        "reagents": [
+          {
+            "id": "r1",
+            "name": "Su",
+            "color": "#87CEEB",
+            "isCorrect": false
+          },
+          {
+            "id": "r2",
+            "name": "Sülfürik Asit",
+            "color": "#FFFF00",
+            "isCorrect": true
+          },
+          {
+            "id": "r3",
+            "name": "Baz",
+            "color": "#0000FF",
+            "isCorrect": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "ev_diary",
+      "title": "Eski Deri Günlük",
+      "description": "Sayfalar boş görünüyor. UV ile incele.",
+      "type": "photo",
+      "filePath": "assets/images/case_004/ev_diary_normal.jpg",
+      "location": "Masa",
+      "discoveredAt": "22:15",
+      "isUnlocked": true,
+      "isLocked": false,
+      "hasHiddenLayer": true,
+      "hiddenLayerUrl": "assets/images/case_004/ev_diary_uv.jpg"
+    },
+    {
+      "id": "ev_phone_prof",
+      "title": "Profesörün Telefonu",
+      "description": "Mesajlar ve galeri ilginç.",
+      "type": "phone",
+      "filePath": "assets/images/case_004/ev_phone.jpg",
+      "location": "Cesedin Yanı",
+      "discoveredAt": "22:05",
+      "isUnlocked": true,
+      "isLocked": false,
+      "phoneData": {
+        "ownerName": "Prof. Orhan Veli",
+        "contacts": [
+          {
+            "id": "c_elif",
+            "name": "Asistan Elif",
+            "phoneNumber": "0532-111-2233"
+          },
+          {
+            "id": "c_sedat",
+            "name": "Antikacı Sedat",
+            "phoneNumber": "0535-999-8877"
+          }
+        ],
+        "chats": [
+          {
+            "contactId": "c_elif",
+            "contactName": "Asistan Elif",
+            "messages": [
+              {
+                "text": "Hocam formülü denemeyin, tehlikeli!",
+                "isFromMe": false,
+                "timestamp": "14:00"
+              },
+              {
+                "text": "Bilim cesaret ister. Bu akşam bitireceğim.",
+                "isFromMe": true,
+                "timestamp": "14:05"
+              }
+            ]
+          },
+          {
+            "contactId": "c_sedat",
+            "contactName": "Antikacı Sedat",
+            "messages": [
+              {
+                "text": "O kitap benim hakkım! Müzeye veremezsin.",
+                "isFromMe": false,
+                "timestamp": "15:00"
+              }
+            ]
+          }
+        ],
+        "callHistory": [
+          {
+            "contactName": "Asistan Elif",
+            "phoneNumber": "0532-111-2233",
+            "timestamp": "20:45",
+            "status": "outgoing",
+            "duration": "2 dk"
+          }
+        ],
+        "galleryImages": [
+          "assets/images/case_004/gallery_map.jpg",
+          "assets/images/case_004/gallery_traitor.jpg"
+        ]
+      }
+    },
+    {
+      "id": "ev_ancient_book",
+      "title": "El Yazması Kitap",
+      "description": "4 haneli tarih çarkı ile kilitli.",
+      "type": "document",
+      "filePath": "assets/images/case_004/ev_book.jpg",
+      "location": "Çekmece",
+      "discoveredAt": "23:00",
+      "isUnlocked": true,
+      "isLocked": true,
+      "unlockCode": "1453",
+      "lockedHint": "İstanbul'un kaderinin değiştiği yıl."
+    },
+    {
+      "id": "ev_arsenic",
+      "title": "Boş Arsenik Kutusu",
+      "description": "Çöpte bulundu. Zehir işareti var.",
+      "type": "photo",
+      "filePath": "assets/images/case_004/ev_arsenic.jpg",
+      "location": "Çöp Kutusu",
+      "discoveredAt": "22:30",
+      "isUnlocked": true,
+      "isLocked": false
+    }
+  ],
+  "suspects": [
+    {
+      "id": "suspect_elif",
+      "name": "Elif Demir",
+      "age": 24,
+      "occupation": "Araştırma Görevlisi",
+      "photoPath": "assets/images/case_004/suspect_elif.jpg",
+      "relationshipToVictim": "Asistan",
+      "alibi": "Kütüphanedeydi dedi, kamera yok.",
+      "motive": "Para. Formülü satmak.",
+      "biography": "Maddi durumu kötü ama pahalı giyiniyor."
+    },
+    {
+      "id": "suspect_sedat",
+      "name": "Sedat 'Baron' Karadeniz",
+      "age": 50,
+      "occupation": "Antikacı",
+      "photoPath": "assets/images/case_004/suspect_sedat.jpg",
+      "relationshipToVictim": "Eski arkadaş",
+      "alibi": "Dükkandaydı, kamera bozuk.",
+      "motive": "Kitabı ele geçirmek.",
+      "biography": "Kapalıçarşı'nın karanlık yüzü. Kaçakçılık sabıkası var."
+    },
+    {
+      "id": "suspect_orhan",
+      "name": "Prof. Orhan Veli",
+      "age": 65,
+      "occupation": "Profesör (Maktul)",
+      "photoPath": "assets/images/case_004/victim_orhan.jpg",
+      "relationshipToVictim": "Kurban",
+      "alibi": "Yok",
+      "motive": "Yok",
+      "biography": "Saygın akademisyen."
+    }
+  ],
+  "interrogations": [
+    {
+      "id": "int_elif",
+      "suspectId": "suspect_elif",
+      "title": "Asistan Sorgusu",
+      "dateTime": "09:00",
+      "transcript": [
+        {
+          "question": "Son görüşmeniz?",
+          "answer": "Dün öğleden sonra.",
+          "isClue": true,
+          "isContradiction": false
+        }
+      ],
+      "summary": "Elif ile duygusal görüşme.",
+      "isUnlocked": true,
+      "isCompleted": false,
+      "isInteractive": true,
+      "dialogueTree": [
+        {
+          "id": "start",
+          "text": "(Ağlıyor) Hocamın ölümü beni yıktı...",
+          "isEnd": false,
+          "options": [
+            {
+              "text": "Baron ile fotoğrafınız var.",
+              "nextNodeId": "node_panic"
+            },
+            {
+              "text": "Laboratuvarda Arsenik çıktı.",
+              "nextNodeId": "node_arsenic"
+            }
+          ]
+        },
+        {
+          "id": "node_panic",
+          "text": "Baron beni tehdit ediyordu!",
+          "isEnd": false,
+          "options": [
+            {
+              "text": "Formülü sen mi sızdırdın?",
+              "nextNodeId": "node_confess"
+            }
+          ]
+        },
+        {
+          "id": "node_arsenic",
+          "text": "Ben sadece malzemeleri ayarladım!",
+          "isEnd": false,
+          "options": [
+            {
+              "text": "Zehri sen mi koydun?",
+              "nextNodeId": "node_confess"
+            }
+          ]
+        },
+        {
+          "id": "node_confess",
+          "text": "(Çöküyor) ...Tamam. Ben yaptım. Ama öldürmek istememiştim!",
+          "isEnd": true,
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "int_sedat",
+      "suspectId": "suspect_sedat",
+      "title": "Antikacı Sorgusu",
+      "dateTime": "10:30",
+      "transcript": [
+        {
+          "question": "Aranız nasıldı?",
+          "answer": "30 yıllık dostuz.",
+          "isClue": false,
+          "isContradiction": true
+        }
+      ],
+      "summary": "Baron ile gergin görüşme.",
+      "isUnlocked": true,
+      "isCompleted": false,
+      "isInteractive": true,
+      "dialogueTree": [
+        {
+          "id": "start",
+          "text": "Baron bana derler. Orhan'ın ölümü beni sarstı.",
+          "isEnd": false,
+          "options": [
+            {
+              "text": "Kitabı neden istiyordunuz?",
+              "nextNodeId": "node_book"
+            },
+            {
+              "text": "Elif sizi suçluyor.",
+              "nextNodeId": "node_blame"
+            }
+          ]
+        },
+        {
+          "id": "node_book",
+          "text": "O kitap paha biçilemez! Koleksiyonumda olmalıydı.",
+          "isEnd": true,
+          "options": []
+        },
+        {
+          "id": "node_blame",
+          "text": "Ne?! O küçük yılan! Delirmiş olmalı!",
+          "isEnd": true,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "ded_poison",
+      "requiredEvidenceIds": [
+        "ev_vial",
+        "ev_arsenic"
+      ],
+      "resultText": "ZEHİR BULUNDU: Simya iksirinin içine Arsenik eklendi. Planlı cinayet!"
+    },
+    {
+      "id": "ded_map",
+      "requiredEvidenceIds": [
+        "ev_diary",
+        "ev_ancient_book"
+      ],
+      "resultText": "GİZLİ GEÇİT: UV harita Yerebatan Sarnıcı'nı işaret ediyor."
+    },
+    {
+      "id": "ded_traitor",
+      "requiredEvidenceIds": [
+        "ev_phone_prof",
+        "ev_arsenic"
+      ],
+      "resultText": "KÖSTEBEĞİ BULDUK: Elif, Baron ile görüşüyordu!"
+    }
+  ],
+  "solution": {
+    "guiltyId": "suspect_elif",
+    "correctMotive": "Elif, formülü Baron'a satmak için profesörü zehirledi.",
+    "explanation": "Tebrikler! Elif tutuklandı, Baron suç ortağı olarak yakalandı.",
+    "motiveOptions": [
+      "Elif formülü satmak için zehirledi.",
+      "Baron kitap için öldürdü.",
+      "Profesör kendini zehirledi.",
+      "Elif ve Baron birlikte öldürdü."
+    ]
+  },
+  "endingData": {
+    "title": "Simyacının Laneti Sona Erdi",
+    "narrative": "Elif, profesörün bulduğu formülün değerini anladığında gözünü para hırsı bürüdü. Antikacı Sedat ile anlaşıp formülü satacaktı. Ancak Profesör Orhan durumu fark etti ve formülü yok etmeye çalıştı. Panikleyen Elif, laboratuvarın anahtarını kullanarak Profesörün hazırladığı karışıma Arsenik ekledi. Profesör ölümsüzlüğü ararken, en güvendiği öğrencisinin elinden ölümü tattı.",
+    "killerConfession": "\"Benim suçum yok! O formül dünyayı değiştirebilirdi ama o bencilce saklamak istedi. Sadece korkutmak istemiştim, öleceğini düşünmedim... Paraya ihtiyacım vardı, sadece paraya...\"",
+    "killerImage": "assets/images/case_004/suspect_elif.jpg"
+  }
+}

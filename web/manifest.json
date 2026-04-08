@@ -1,0 +1,54 @@
+{
+    "name": "Doctor: Suç Dosyaları",
+    "short_name": "Doctor",
+    "description": "İnteraktif cinayet çözme oyunu. Kanıtları incele, tanıkları sorgula ve katili bul!",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#1a1a1a",
+    "theme_color": "#ff4757",
+    "orientation": "portrait-primary",
+    "prefer_related_applications": false,
+    "categories": ["games", "entertainment"],
+    "lang": "tr",
+    "dir": "ltr",
+    "scope": "/",
+    "icons": [
+        {
+            "src": "icons/Icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        },
+        {
+            "src": "icons/Icon-maskable-192.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "maskable"
+        },
+        {
+            "src": "icons/Icon-maskable-512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "Vakaları Gör",
+            "short_name": "Vakalar",
+            "description": "Tüm suç dosyalarını incele",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "icons/Icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ]
+}

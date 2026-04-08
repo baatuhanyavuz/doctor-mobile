@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description"
+    content="Doctor: Suç Dosyaları - İnteraktif cinayet çözme oyunu. Kanıtları incele, tanıkları sorgula ve katili bul!">
+  <meta name="theme-color" content="#ff4757">
+  <meta name="keywords" content="doctor, cinayet, oyun, bulmaca, suç, soruşturma, interaktif">
+  <meta name="author" content="Doctor Games">
+
+  <!-- iOS/Safari PWA Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Doctor">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Google Identity Services (Modern Web) -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Google Sign-In Config for google_sign_in_web -->
+  <meta name="google-signin-client_id"
+    content="449009688447-16mfge7mn89tibids6vmhqpi93jl9bi4.apps.googleusercontent.com">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <title>Doctor: Suç Dosyaları</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Noir Detective Splash Screen Styles -->
+  <style>
+    :root {
+      --noir-bg: #1a1a1a;
+      --noir-dark: #0d0d0d;
+      --accent-red: #ff4757;
+      --accent-red-glow: rgba(255, 71, 87, 0.6);
+      --text-cream: #f5f5dc;
+      --text-muted: #888;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--noir-bg);
+    }
+
+    /* Splash Screen Container */
+    #splash {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, var(--noir-dark) 0%, var(--noir-bg) 50%, #1f1f1f 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.8s ease-out;
+    }
+
+    #splash.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Film Grain Effect */
+    #splash::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+    }
+
+    /* Vignette Effect */
+    #splash::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+      pointer-events: none;
+    }
+
+    /* Magnifying Glass Icon */
+    .magnifier {
+      width: 120px;
+      height: 120px;
+      position: relative;
+      margin-bottom: 40px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .magnifier-glass {
+      width: 80px;
+      height: 80px;
+      border: 5px solid var(--accent-red);
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 10px;
+      box-shadow:
+        0 0 20px var(--accent-red-glow),
+        inset 0 0 30px rgba(255, 71, 87, 0.1);
+    }
+
+    .magnifier-handle {
+      width: 8px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--accent-red), #cc3a47);
+      position: absolute;
+      bottom: 0;
+      right: 15px;
+      transform: rotate(-45deg);
+      border-radius: 4px;
+      box-shadow: 0 0 10px var(--accent-red-glow);
+    }
+
+    /* Fingerprint inside magnifier */
+    .fingerprint {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      opacity: 0.5;
+    }
+
+    .fingerprint::before,
+    .fingerprint::after {
+      content: '';
+      position: absolute;
+      border: 2px solid var(--text-cream);
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+
+    .fingerprint::before {
+      width: 20px;
+      height: 30px;
+      top: 5px;
+      left: 10px;
+    }
+
+    .fingerprint::after {
+      width: 30px;
+      height: 40px;
+      top: 0;
+      left: 5px;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px var(--accent-red-glow));
+      }
+
+      50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 25px var(--accent-red-glow));
+      }
+    }
+
+    /* Title */
+    .title {
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-size: 2rem;
+      color: var(--text-cream);
+      text-transform: uppercase;
+      letter-spacing: 8px;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      font-family: 'Georgia', serif;
+      font-size: 1rem;
+      color: var(--accent-red);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 50px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Typewriter Loading Text */
+    .loading-text {
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .loading-text::after {
+      content: '|';
+      animation: blink 0.8s infinite;
+      color: var(--accent-red);
+    }
+
+    @keyframes blink {
+
+      0%,
+      50% {
+        opacity: 1;
+      }
+
+      51%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    /* Loading Bar */
+    .loading-bar-container {
+      width: 200px;
+      height: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-top: 20px;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .loading-bar {
+      width: 30%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-red), #ff6b7a);
+      border-radius: 2px;
+      animation: loading 1.5s ease-in-out infinite;
+    }
+
+    @keyframes loading {
+      0% {
+        transform: translateX(-100%);
+      }
+
+      100% {
+        transform: translateX(400%);
+      }
+    }
+
+    /* Blood drip decoration */
+    .drip {
+      position: absolute;
+      bottom: 50px;
+      width: 3px;
+      background: linear-gradient(to bottom, transparent, var(--accent-red));
+      opacity: 0.3;
+      animation: drip 3s ease-in infinite;
+    }
+
+    .drip:nth-child(1) {
+      left: 10%;
+      height: 60px;
+      animation-delay: 0s;
+    }
+
+    .drip:nth-child(2) {
+      left: 25%;
+      height: 40px;
+      animation-delay: 1s;
+    }
+
+    .drip:nth-child(3) {
+      left: 75%;
+      height: 50px;
+      animation-delay: 0.5s;
+    }
+
+    .drip:nth-child(4) {
+      right: 10%;
+      height: 45px;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes drip {
+
+      0%,
+      100% {
+        opacity: 0.3;
+        transform: scaleY(1);
+      }
+
+      50% {
+        opacity: 0.6;
+        transform: scaleY(1.2);
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .title {
+        font-size: 1.5rem;
+        letter-spacing: 4px;
+      }
+
+      .subtitle {
+        font-size: 0.8rem;
+        letter-spacing: 2px;
+      }
+
+      .magnifier {
+        width: 100px;
+        height: 100px;
+      }
+
+      .magnifier-glass {
+        width: 65px;
+        height: 65px;
+      }
+
+      .magnifier-handle {
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Noir Detective Splash Screen -->
+  <div id="splash">
+    <div class="drip"></div>
+    <div class="drip"></div>
+    <div class="drip"></div>
+    <div class="drip"></div>
+
+    <div class="magnifier">
+      <div class="magnifier-glass">
+        <div class="fingerprint"></div>
+      </div>
+      <div class="magnifier-handle"></div>
+    </div>
+
+    <div class="title">Doctor</div>
+    <div class="subtitle">Suç Dosyaları</div>
+
+    <div class="loading-text">Dosyalar yükleniyor</div>
+    <div class="loading-bar-container">
+      <div class="loading-bar"></div>
+    </div>
+  </div>
+
+  <script>
+    // Force CanvasKit renderer for high-quality fonts and animations
+    window.flutterWebRenderer = 'canvaskit';
+
+    // Service Worker Update Handler
+    window.addEventListener('flutter-first-frame', function () {
+      // Hide splash screen with fade animation
+      const splash = document.getElementById('splash');
+      if (splash) {
+        splash.classList.add('hidden');
+        setTimeout(() => splash.remove(), 800);
+      }
+    });
+
+    // Track service worker updates for Riverpod provider
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.ready.then(function (registration) {
+        registration.addEventListener('updatefound', function () {
+          const newWorker = registration.installing;
+          newWorker.addEventListener('statechange', function () {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              // New version available - dispatch custom event
+              window.dispatchEvent(new CustomEvent('pwa-update-available'));
+            }
+          });
+        });
+      });
+    }
+
+    // Capture beforeinstallprompt for custom install button
+    window.deferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      window.deferredInstallPrompt = e;
+      window.dispatchEvent(new CustomEvent('pwa-install-available'));
+    });
+  </script>
+
+  <!-- Firebase SDK for Web -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDbeajmoH2ACv5A6gkoirtMAAzqInKUMuk",
+      authDomain: "detective-487310.firebaseapp.com",
+      projectId: "detective-487310",
+      storageBucket: "detective-487310.firebasestorage.app",
+      messagingSenderId: "449009688447",
+      appId: "1:449009688447:android:c3849002cbe9b58086844a"
+    });
+  </script>
+
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+
+</html>

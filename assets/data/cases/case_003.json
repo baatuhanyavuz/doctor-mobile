@@ -1,0 +1,344 @@
+{
+  "id": "case_003",
+  "title": "Vaka #003: Proje SESSİZLİK",
+  "shortDescription": "İstanbul'un en yüksek kulesinden düşen bir gazeteci. Polis 'İntihar' dedi.",
+  "fullDescription": "Defne Aras kuleden düştü. Polis intihar dedi ama OmniCorp'un gölgesinde hiçbir şey göründüğü gibi değil.",
+  "difficulty": "hard",
+  "price": 149.99,
+  "status": "available",
+  "progressPercent": 0,
+  "coverImage": "assets/images/case_003/cover.jpg",
+  "victim": {
+    "name": "Defne Aras",
+    "age": 32,
+    "occupation": "Gazeteci",
+    "photoPath": "assets/images/case_003/suspect_defne.jpg",
+    "causeOfDeath": "Yüksekten düşme",
+    "deathLocation": "OmniCorp Tower",
+    "deathTime": "23:45",
+    "biography": "Araştırmacı gazeteci. Proje Sessizlik'i ifşa edecekti."
+  },
+  "evidences": [
+    {
+      "id": "ev_phone",
+      "title": "Defne'nin Telefonu",
+      "description": "Ekranı çatlamış. Son mesajları incele.",
+      "type": "phone",
+      "filePath": "assets/images/case_003/ev_phone.jpg",
+      "location": "Olay yeri",
+      "discoveredAt": "00:15",
+      "isUnlocked": true,
+      "isLocked": false,
+      "phoneData": {
+        "ownerName": "Defne Aras",
+        "contacts": [
+          {
+            "id": "c_editor",
+            "name": "Editör Can",
+            "phoneNumber": "0555-987-6543"
+          },
+          {
+            "id": "c_anon",
+            "name": "Anonim Kaynak",
+            "phoneNumber": "Bilinmiyor"
+          }
+        ],
+        "chats": [
+          {
+            "contactId": "c_editor",
+            "contactName": "Editör Can",
+            "messages": [
+              {
+                "text": "Bu haberi yayınlama. OmniCorp peşine düşer!",
+                "isFromMe": false,
+                "timestamp": "20:30"
+              },
+              {
+                "text": "Gerçekleri herkes bilmeli.",
+                "isFromMe": true,
+                "timestamp": "20:32"
+              }
+            ]
+          },
+          {
+            "contactId": "c_anon",
+            "contactName": "Anonim Kaynak",
+            "messages": [
+              {
+                "text": "Dosya şifresi: 7412",
+                "isFromMe": false,
+                "timestamp": "18:00"
+              }
+            ]
+          }
+        ],
+        "callHistory": [
+          {
+            "contactName": "Kenan Soylu",
+            "phoneNumber": "Gizli",
+            "timestamp": "22:15",
+            "status": "incoming",
+            "duration": "3 dk"
+          }
+        ],
+        "galleryImages": [
+          "assets/images/case_003/gallery_server_room_deleted.jpg"
+        ]
+      }
+    },
+    {
+      "id": "ev_stain",
+      "title": "Zemindeki Leke",
+      "description": "Polis raporunda 'Kahve Lekesi'. Kokusu farklı.",
+      "type": "forensic_sample",
+      "filePath": "assets/images/case_003/ev_stain_scene.jpg",
+      "location": "Ofis",
+      "discoveredAt": "01:30",
+      "isUnlocked": true,
+      "isLocked": false,
+      "forensicData": {
+        "initialImageUrl": "assets/images/case_003/lab_stain_brown.jpg",
+        "resultImageUrl": "assets/images/case_003/lab_stain_result.jpg",
+        "resultText": "POZİTİF: Macallan 1926 viskisi. İçinde nörotoksin var!",
+        "reagents": [
+          {
+            "id": "r_lum",
+            "name": "Luminol",
+            "color": "#00FF00",
+            "isCorrect": false
+          },
+          {
+            "id": "r_acid",
+            "name": "Asit",
+            "color": "#FF0000",
+            "isCorrect": false
+          },
+          {
+            "id": "r_spec",
+            "name": "Spektrometre",
+            "color": "#3366FF",
+            "isCorrect": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "ev_note",
+      "title": "Veda Mektubu",
+      "description": "Masada bulundu. UV ile incele.",
+      "type": "photo",
+      "filePath": "assets/images/case_003/ev_note_normal.jpg",
+      "location": "Masa",
+      "discoveredAt": "00:30",
+      "isUnlocked": true,
+      "isLocked": false,
+      "hasHiddenLayer": true,
+      "hiddenLayerUrl": "assets/images/case_003/ev_note_uv.jpg"
+    },
+    {
+      "id": "ev_encrypted_doc",
+      "title": "Şifreli OmniCorp Dosyaları",
+      "description": "AES-256 şifreli. Şifreyi mesajlarda bul.",
+      "type": "document",
+      "filePath": "assets/images/case_003/ev_doc_locked.jpg",
+      "location": "USB",
+      "discoveredAt": "02:00",
+      "isUnlocked": true,
+      "isLocked": true,
+      "unlockCode": "7412",
+      "lockedHint": "Şifre Defne'nin mesajlarında."
+    },
+    {
+      "id": "ev_kenan_photo",
+      "title": "Kenan Soylu Fotosu",
+      "description": "Elindeki viskiye dikkat.",
+      "type": "photo",
+      "filePath": "assets/images/case_003/ev_kenan_whiskey.jpg",
+      "location": "İnternet",
+      "discoveredAt": "03:00",
+      "isUnlocked": true,
+      "isLocked": false
+    },
+    {
+      "id": "ev_pot",
+      "title": "Kırık Saksı",
+      "description": "Boğuşma sırasında devrilmiş.",
+      "type": "photo",
+      "filePath": "assets/images/case_003/ev_pot.jpg",
+      "location": "Balkon",
+      "discoveredAt": "01:00",
+      "isUnlocked": true,
+      "isLocked": false
+    },
+    {
+      "id": "ev_usb",
+      "title": "Gizli USB Bellek",
+      "description": "Saksıda gizlenmiş. Proje Sessizlik kodları.",
+      "type": "document",
+      "filePath": "assets/images/case_003/ev_usb_content.jpg",
+      "location": "Saksı",
+      "discoveredAt": "01:15",
+      "isUnlocked": false,
+      "isLocked": false
+    }
+  ],
+  "suspects": [
+    {
+      "id": "suspect_kenan",
+      "name": "Kenan Soylu",
+      "age": 52,
+      "occupation": "CEO, OmniCorp",
+      "photoPath": "assets/images/case_003/suspect_kenan.jpg",
+      "relationshipToVictim": "Hedef",
+      "alibi": "Evde olduğunu iddia ediyor.",
+      "motive": "Haberi engellemek.",
+      "biography": "Teknoloji dünyasının 'Altın Çocuğu'. Nadir viski koleksiyonu var."
+    },
+    {
+      "id": "suspect_leyla",
+      "name": "Leyla Yılmaz",
+      "age": 26,
+      "occupation": "Asistan",
+      "photoPath": "assets/images/case_003/suspect_leyla.jpg",
+      "relationshipToVictim": "Arkadaş",
+      "alibi": "Alt katta kafedeydi.",
+      "motive": "Yok.",
+      "biography": "Defne'nin en yakın arkadaşı."
+    },
+    {
+      "id": "suspect_defne",
+      "name": "Defne Aras",
+      "age": 32,
+      "occupation": "Gazeteci (Maktul)",
+      "photoPath": "assets/images/case_003/suspect_defne.jpg",
+      "relationshipToVictim": "Kurban",
+      "alibi": "Yok",
+      "motive": "Yok",
+      "biography": "Ödüllü araştırmacı gazeteci."
+    }
+  ],
+  "interrogations": [
+    {
+      "id": "int_kenan",
+      "suspectId": "suspect_kenan",
+      "title": "CEO Sorgusu",
+      "dateTime": "10:00",
+      "transcript": [
+        {
+          "question": "Defne Aras'ı tanıyor musunuz?",
+          "answer": "Adını duydum.",
+          "isClue": false,
+          "isContradiction": false
+        }
+      ],
+      "summary": "Kenan Soylu ile resmi görüşme.",
+      "isUnlocked": true,
+      "isCompleted": false,
+      "isInteractive": true,
+      "dialogueTree": [
+        {
+          "id": "start",
+          "text": "Buraya izinsiz girmeniz büyük cesaret dedektif.",
+          "isEnd": false,
+          "options": [
+            {
+              "text": "Defne Aras'ı tanıyor musunuz?",
+              "nextNodeId": "node_deny"
+            },
+            {
+              "text": "Viski koleksiyonunuz?",
+              "nextNodeId": "node_whiskey"
+            }
+          ]
+        },
+        {
+          "id": "node_deny",
+          "text": "Adını duydum. Yalan haberler yazan bir gazeteciydi.",
+          "isEnd": true,
+          "options": []
+        },
+        {
+          "id": "node_whiskey",
+          "text": "Macallan 1926'm var. Türkiye'de tek.",
+          "isEnd": true,
+          "options": []
+        }
+      ]
+    },
+    {
+      "id": "int_leyla",
+      "suspectId": "suspect_leyla",
+      "title": "Asistan Sorgusu",
+      "dateTime": "11:00",
+      "transcript": [
+        {
+          "question": "Son görüşmeniz?",
+          "answer": "Saat 8 civarı.",
+          "isClue": true,
+          "isContradiction": false
+        }
+      ],
+      "summary": "Leyla ile duygusal görüşme.",
+      "isUnlocked": true,
+      "isCompleted": false,
+      "isInteractive": true,
+      "dialogueTree": [
+        {
+          "id": "start",
+          "text": "(Ağlıyor) Defne en yakın arkadaşımdı!",
+          "isEnd": false,
+          "options": [
+            {
+              "text": "O gece neler oldu?",
+              "nextNodeId": "node_night"
+            }
+          ]
+        },
+        {
+          "id": "node_night",
+          "text": "Saat 8'de vedalaştık. Sonra haberi aldım.",
+          "isEnd": true,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "ded_whiskey",
+      "requiredEvidenceIds": [
+        "ev_stain",
+        "ev_kenan_photo"
+      ],
+      "resultText": "EŞLEŞME: Olay yerindeki viski Macallan 1926. Sadece Kenan'da var!"
+    },
+    {
+      "id": "ded_usb",
+      "requiredEvidenceIds": [
+        "ev_note",
+        "ev_pot"
+      ],
+      "resultText": "GİZLİ: UV'de 'SAKSI' yazıyor. İçinde USB var!",
+      "rewardEvidenceId": "ev_usb"
+    },
+    {
+      "id": "ded_motive",
+      "requiredEvidenceIds": [
+        "ev_encrypted_doc",
+        "ev_usb"
+      ],
+      "resultText": "MOTİF: Proje Sessizlik yasadışı gözetleme yapay zekası!"
+    }
+  ],
+  "solution": {
+    "guiltyId": "suspect_kenan",
+    "correctMotive": "Kenan, Defne'yi Proje Sessizlik'i ifşa etmesini engellemek için zehirledi ve balkondan attı.",
+    "explanation": "Tebrikler! Kenan Soylu tutuklandı.",
+    "motiveOptions": [
+      "Kenan zehirledi ve balkondan attı.",
+      "Leyla kıskandı.",
+      "Defne intihar etti.",
+      "Anonim kaynak öldürdü."
+    ]
+  }
+}

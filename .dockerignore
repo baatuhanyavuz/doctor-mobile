@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea
+.vs
+.vscode
+*.iml
+
+# Dart/Flutter
+.dart_tool
+.packages
+.pub-cache
+.pub
+build/
+*.dart.js
+*.dart.js.deps
+*.dart.js.map
+*.dart.precompiled.js
+
+# Android (not needed for web)
+android/
+
+# iOS (not needed for web)
+ios/
+
+# Tests
+test/
+integration_test/
+*_test.dart
+
+# Documentation
+*.md
+!README.md
+
+# Build artifacts
+build_log.txt
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Coverage
+coverage/
+
+# Miscellaneous
+*.lock
+!pubspec.lock

@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <!-- Background: deep noir gradient with warm undertone -->
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#1a0e11"/>
+      <stop offset="60%" stop-color="#0f0a0b"/>
+      <stop offset="100%" stop-color="#060405"/>
+    </radialGradient>
+
+    <!-- Glow filter for fingerprint ridges -->
+    <filter id="ridgeGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Strong center glow -->
+    <filter id="centerGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="22" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Clip to icon bounds -->
+    <clipPath id="iconClip">
+      <rect width="1024" height="1024"/>
+    </clipPath>
+
+    <!-- Fingerprint ridge color gradient: brighter in center -->
+    <radialGradient id="ridgeColor" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#E87E92"/>
+      <stop offset="40%"  stop-color="#CF6679"/>
+      <stop offset="100%" stop-color="#A04455"/>
+    </radialGradient>
+  </defs>
+
+  <g clip-path="url(#iconClip)">
+
+    <!-- ── Background ───────────────────────────────────────────── -->
+    <rect width="1024" height="1024" fill="url(#bg)"/>
+
+    <!-- Subtle noise texture overlay via thin diagonal lines -->
+    <g opacity="0.03" stroke="#ffffff" stroke-width="1">
+      <line x1="0"    y1="200"  x2="200"  y2="0"/>
+      <line x1="0"    y1="400"  x2="400"  y2="0"/>
+      <line x1="0"    y1="600"  x2="600"  y2="0"/>
+      <line x1="0"    y1="800"  x2="800"  y2="0"/>
+      <line x1="0"    y1="1000" x2="1000" y2="0"/>
+      <line x1="200"  y1="1024" x2="1024" y2="200"/>
+      <line x1="400"  y1="1024" x2="1024" y2="400"/>
+      <line x1="600"  y1="1024" x2="1024" y2="600"/>
+      <line x1="800"  y1="1024" x2="1024" y2="800"/>
+    </g>
+
+    <!-- ── Fingerprint whorl – centered at 512, 488 ─────────────── -->
+    <!-- Each ring: slightly taller ellipse, staggered dashoffset    -->
+    <!-- for the characteristic fingerprint break pattern            -->
+
+    <g transform="translate(512,488)" filter="url(#ridgeGlow)">
+
+      <!-- Core dot -->
+      <circle r="20" fill="url(#ridgeColor)" filter="url(#centerGlow)"/>
+
+      <!-- Ring 1  rx=52  ry=38 -->
+      <ellipse rx="52"  ry="38"  fill="none" stroke="url(#ridgeColor)" stroke-width="14"
+               stroke-dasharray="215 65"   stroke-dashoffset="0"   stroke-linecap="round"/>
+
+      <!-- Ring 2  rx=95  ry=70 -->
+      <ellipse rx="95"  ry="70"  fill="none" stroke="url(#ridgeColor)" stroke-width="13"
+               stroke-dasharray="390 110"  stroke-dashoffset="45"  stroke-linecap="round"/>
+
+      <!-- Ring 3  rx=140 ry=104 -->
+      <ellipse rx="140" ry="104" fill="none" stroke="url(#ridgeColor)" stroke-width="12"
+               stroke-dasharray="570 150"  stroke-dashoffset="95"  stroke-linecap="round"/>
+
+      <!-- Ring 4  rx=186 ry=140 -->
+      <ellipse rx="186" ry="140" fill="none" stroke="url(#ridgeColor)" stroke-width="11"
+               stroke-dasharray="760 190"  stroke-dashoffset="148" stroke-linecap="round"/>
+
+      <!-- Ring 5  rx=234 ry=178 -->
+      <ellipse rx="234" ry="178" fill="none" stroke="url(#ridgeColor)" stroke-width="10"
+               stroke-dasharray="955 230"  stroke-dashoffset="205" stroke-linecap="round"/>
+
+      <!-- Ring 6  rx=283 ry=216 -->
+      <ellipse rx="283" ry="216" fill="none" stroke="url(#ridgeColor)" stroke-width="9"
+               stroke-dasharray="1155 270" stroke-dashoffset="264" stroke-linecap="round"
+               opacity="0.90"/>
+
+      <!-- Ring 7  rx=333 ry=256 -->
+      <ellipse rx="333" ry="256" fill="none" stroke="url(#ridgeColor)" stroke-width="8"
+               stroke-dasharray="1358 310" stroke-dashoffset="325" stroke-linecap="round"
+               opacity="0.78"/>
+
+      <!-- Ring 8  rx=384 ry=296 -->
+      <ellipse rx="384" ry="296" fill="none" stroke="url(#ridgeColor)" stroke-width="7"
+               stroke-dasharray="1564 350" stroke-dashoffset="388" stroke-linecap="round"
+               opacity="0.62"/>
+
+      <!-- Ring 9  rx=436 ry=336 -->
+      <ellipse rx="436" ry="336" fill="none" stroke="url(#ridgeColor)" stroke-width="6"
+               stroke-dasharray="1774 390" stroke-dashoffset="452" stroke-linecap="round"
+               opacity="0.44"/>
+
+      <!-- Ring 10 rx=490 ry=378 — fades out at the edges -->
+      <ellipse rx="490" ry="378" fill="none" stroke="url(#ridgeColor)" stroke-width="5"
+               stroke-dasharray="1990 430" stroke-dashoffset="518" stroke-linecap="round"
+               opacity="0.25"/>
+
+    </g>
+
+    <!-- ── Vignette: darkens corners for depth ──────────────────── -->
+    <radialGradient id="vignette" cx="50%" cy="50%" r="72%">
+      <stop offset="55%"  stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.72"/>
+    </radialGradient>
+    <rect width="1024" height="1024" fill="url(#vignette)"/>
+
+    <!-- ── Thin outer ring (subtle branding frame) ──────────────── -->
+    <circle cx="512" cy="512" r="490"
+            fill="none" stroke="#CF6679" stroke-width="2.5" opacity="0.18"/>
+
+  </g>
+</svg>

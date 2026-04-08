@@ -1,0 +1,282 @@
+{
+    "id": "case_005",
+    "title": "Vaka #005: Son Perde",
+    "shortDescription": "Ünlü tiyatro divası sahnede öldü. Rol mü, cinayet mi?",
+    "fullDescription": "İstanbul'un en ünlü tiyatro divası Leyla Yıldız, veda oyununun final sahnesinde binlerce seyircinin önünde hayatını kaybetti. Rol gereği içtiği zehir, gerçeğe dönüştü.",
+    "difficulty": "hard",
+    "price": 249.99,
+    "status": "locked",
+    "progressPercent": 0,
+    "coverImage": "assets/images/case_005/cover.jpg",
+    "introText": "İstanbul'un yağmurlu bir gecesi... Beyoğlu'ndaki tarihi Atlas Opera Sahnesi'nde alkışlar çığlıklara karıştı. Tiyatro kraliçesi Leyla Yıldız, 'Veda' oyununun finalinde, senaryo gereği içtiği zehirle yere yığıldı. Ancak perde kapandığında bir daha kalkamadı. Bu bir kaza mı, intihar mı, yoksa kusursuz bir cinayet mi?",
+    "crimeScene": "Atlas Opera Sahnesi - Kulis ve Sahne",
+    "officialReport": "Kurbanın kanında yüksek dozda siyanür tespit edildi. Ölüm saati 22:45, tam oyunun final sahnesi sırasında. Olay yerindeki 'sahne aksesuarı' olan zehir şişesi incelemeye alındı.",
+    "victim": {
+        "name": "Leyla Yıldız",
+        "age": 45,
+        "occupation": "Tiyatro Oyuncusu",
+        "photoPath": "assets/images/case_005/victim.jpg",
+        "causeOfDeath": "Siyanür Zehirlenmesi",
+        "deathLocation": "Atlas Opera Sahnesi",
+        "deathTime": "22:45",
+        "biography": "Türkiye'nin tiyatro kraliçesi. Yetenekli, manipülatif ve bencil."
+    },
+    "evidences": [
+        {
+            "id": "ev_mirror",
+            "title": "Kulis Aynası",
+            "description": "Aynada silik bir ruj izi var. UV ışığı ile incele.",
+            "type": "photo",
+            "filePath": "assets/images/case_005/ev_mirror_normal.jpg",
+            "location": "Kulis",
+            "discoveredAt": "23:00",
+            "isUnlocked": true,
+            "isLocked": false,
+            "hasHiddenLayer": true,
+            "hiddenLayerUrl": "assets/images/case_005/ev_mirror_uv.jpg",
+            "uvNote": "Final sahnesi. Sadece bayıl. Ambulans hazır. Efsane başlıyor."
+        },
+        {
+            "id": "ev_bottle",
+            "title": "Zehir Şişesi",
+            "description": "Sahnede kullanılan aksesuar şişe.",
+            "type": "forensic_sample",
+            "filePath": "assets/images/case_005/ev_bottle.jpg",
+            "location": "Sahne",
+            "discoveredAt": "22:50",
+            "isUnlocked": true,
+            "isLocked": false,
+            "forensicData": {
+                "initialImageUrl": "assets/images/case_005/lab_bottle_initial.jpg",
+                "resultImageUrl": "assets/images/case_005/lab_bottle_result.jpg",
+                "resultText": "ANALİZ: Şişe dibinde SİYANÜR kalıntısı. Kapakta ORHAN'a ait parmak izi.",
+                "reagents": [
+                    {
+                        "id": "r1",
+                        "name": "Luminol",
+                        "color": "#87CEEB",
+                        "isCorrect": false
+                    },
+                    {
+                        "id": "r2",
+                        "name": "Ninhidrin",
+                        "color": "#800080",
+                        "isCorrect": true
+                    },
+                    {
+                        "id": "r3",
+                        "name": "Etanol",
+                        "color": "#FFFFFF",
+                        "isCorrect": false
+                    }
+                ]
+            }
+        },
+        {
+            "id": "ev_phone_aras",
+            "title": "Aras'ın Telefonu",
+            "description": "Yönetmenin telefonu. Şifreli.",
+            "type": "phone",
+            "filePath": "assets/images/case_005/ev_phone.jpg",
+            "location": "Yönetmen Odası",
+            "discoveredAt": "23:15",
+            "isUnlocked": true,
+            "isLocked": true,
+            "unlockCode": "1984",
+            "lockedHint": "George Orwell'in ünlü distopyası.",
+            "phoneData": {
+                "ownerName": "Aras (Yönetmen)",
+                "contacts": [
+                    {
+                        "id": "c_elif",
+                        "name": "Elif (Yedek)",
+                        "phoneNumber": "0532-555-0011"
+                    },
+                    {
+                        "id": "c_leyla",
+                        "name": "Leyla Yıldız",
+                        "phoneNumber": "0532-555-9988"
+                    }
+                ],
+                "chats": [
+                    {
+                        "contactId": "c_elif",
+                        "contactName": "Elif (Yedek)",
+                        "messages": [
+                            {
+                                "text": "Bu gece onun son gecesi olacak. Hazır ol.",
+                                "isFromMe": true,
+                                "timestamp": "20:00"
+                            },
+                            {
+                                "text": "Ne demek istiyorsun Aras? Korkuyorum.",
+                                "isFromMe": false,
+                                "timestamp": "20:05"
+                            },
+                            {
+                                "text": "Artık sıra sende yıldızım. Sahne senin.",
+                                "isFromMe": true,
+                                "timestamp": "20:06"
+                            }
+                        ]
+                    }
+                ],
+                "callHistory": [],
+                "galleryImages": []
+            }
+        }
+    ],
+    "suspects": [
+        {
+            "id": "suspect_aras",
+            "name": "Aras",
+            "age": 40,
+            "occupation": "Yönetmen",
+            "photoPath": "assets/images/case_005/suspect_aras.jpg",
+            "relationshipToVictim": "Yönetmeni",
+            "alibi": "Reji odasındaydım.",
+            "motive": "Kariyer/İntikam - Leyla onu kovmak üzereydi.",
+            "biography": "Narsist, mükemmeliyetçi bir yönetmen."
+        },
+        {
+            "id": "suspect_elif",
+            "name": "Elif",
+            "age": 26,
+            "occupation": "Yedek Oyuncu",
+            "photoPath": "assets/images/case_005/suspect_elif.jpg",
+            "relationshipToVictim": "Meslektaşı",
+            "alibi": "Kulis arkasında sıramı bekliyordum.",
+            "motive": "Kıskançlık/Hırs - Yıllardır Leyla'nın gölgesinde.",
+            "biography": "Genç, hırslı ama ezilmiş bir yetenek."
+        },
+        {
+            "id": "suspect_orhan",
+            "name": "Orhan",
+            "age": 50,
+            "occupation": "Menajer/Eski Koca",
+            "photoPath": "assets/images/case_005/suspect_orhan.jpg",
+            "relationshipToVictim": "Eski Eşi ve Menajeri",
+            "alibi": "Seyircilerin arasındaydım.",
+            "motive": "Para - Leyla onu terk ederse batacak.",
+            "biography": "Leyla'nın finansal kuklası. Borç batağında."
+        }
+    ],
+    "interrogations": [
+        {
+            "id": "int_aras",
+            "suspectId": "suspect_aras",
+            "title": "Yönetmen Sorgusu",
+            "dateTime": "23:30",
+            "transcript": [],
+            "summary": "Aras suçlamaları reddediyor.",
+            "isUnlocked": true,
+            "isCompleted": false,
+            "isInteractive": true,
+            "dialogueTree": [
+                {
+                    "id": "start",
+                    "text": "Benim oyunumu mahvetti! Ama onu ben öldürmedim.",
+                    "isEnd": false,
+                    "options": [
+                        {
+                            "text": "Elif'e attığın mesajlar ne?",
+                            "nextNodeId": "node_msg"
+                        }
+                    ]
+                },
+                {
+                    "id": "node_msg",
+                    "text": "Sadece onu kovacağımı söylüyordum! Elif'i motive etmek istedim.",
+                    "isEnd": true,
+                    "options": []
+                }
+            ]
+        },
+        {
+            "id": "int_orhan",
+            "suspectId": "suspect_orhan",
+            "title": "Menajer Sorgusu",
+            "dateTime": "23:45",
+            "transcript": [],
+            "summary": "Orhan çok üzgün görünüyor.",
+            "isUnlocked": true,
+            "isCompleted": false,
+            "isInteractive": true,
+            "dialogueTree": [
+                {
+                    "id": "start",
+                    "text": "(Ağlıyor) Leyla benim her şeyimdi... Nasıl yaparlar?",
+                    "isEnd": false,
+                    "options": [
+                        {
+                            "text": "Maddi durumunuz nasıl?",
+                            "nextNodeId": "node_money"
+                        },
+                        {
+                            "text": "Şişede parmak iziniz var!",
+                            "nextNodeId": "node_fingerprint"
+                        }
+                    ]
+                },
+                {
+                    "id": "node_money",
+                    "text": "Biraz sıkışığım ama Leyla halledecekti...",
+                    "isEnd": false,
+                    "options": [
+                        {
+                            "text": "Leyla sizi terk ediyordu!",
+                            "nextNodeId": "node_lie"
+                        }
+                    ]
+                },
+                {
+                    "id": "node_lie",
+                    "text": "Yalan! Biz birbirimizi seviyorduk!",
+                    "isEnd": true,
+                    "options": []
+                },
+                {
+                    "id": "node_fingerprint",
+                    "text": "Ben... Ben sadece aksesuarı kontrol ettim! Yönetmen istedi!",
+                    "isEnd": true,
+                    "options": []
+                }
+            ]
+        }
+    ],
+    "deductions": [
+        {
+            "id": "ded_plan",
+            "requiredEvidenceIds": [
+                "ev_mirror",
+                "ev_bottle"
+            ],
+            "resultText": "SAHTE PLAN: Leyla ölmek istemiyordu. Sadece bayılıp şov yapacaktı."
+        },
+        {
+            "id": "ded_swap",
+            "requiredEvidenceIds": [
+                "ev_bottle",
+                "suspect_orhan"
+            ],
+            "resultText": "ZEHİR DEĞİŞİMİ: Orhan, sahte şişeyi gerçek zehirle değiştirdi."
+        }
+    ],
+    "solution": {
+        "guiltyId": "suspect_orhan",
+        "correctMotive": "Orhan, Leyla'nın sahte intihar planını öğrendi ve şişeyi gerçek zehirle değiştirdi.",
+        "explanation": "Orhan, Leyla'nın kendisini terk edeceğini ve beş parasız kalacağını biliyordu. Leyla'nın şov amaçlı planladığı sahte intiharı, gerçek bir cinayete dönüştürdü.",
+        "motiveOptions": [
+            "Orhan, Leyla'nın sahte intihar planını öğrendi ve şişeyi gerçek zehirle değiştirdi.",
+            "Aras, Leyla'dan intikam almak için zehirledi.",
+            "Elif, başrolü kapmak için zehri değiştirdi.",
+            "Leyla gerçekten intihar etti."
+        ]
+    },
+    "endingData": {
+        "title": "PERDE KAPANDI",
+        "narrative": "Orhan tutuklandı. Leyla Yıldız, kendi yazdığı senaryonun kurbanı oldu. Sahne ışıkları söndü ama bu son performans asla unutulmayacak.",
+        "killerConfession": "\"Beni terk edecekti! Beş kuruşsuz sokağa atılacaktım. O planı görünce... Sadece küçük bir değişiklik yaptım. O zaten ölmeyi hakediyordu!\"",
+        "killerImage": "assets/images/case_005/suspect_orhan.jpg"
+    }
+}

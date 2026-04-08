@@ -1,0 +1,6 @@
+[20:50:12] Biyometrik Giriş: Demir Erkin (Başarılı)
+[20:50:15] Panik Odası Kapısı: KİLİTLENDİ
+[21:15:00] --(Adli Tıp Tahmini Ölüm Saati)--
+[21:40:33] Sesli Komut Algılandı: "Aura, tüm ışıkları kapat."
+[21:40:35] İşlem Onaylandı: Demir Erkin (Ses Eşleşme %99.9)
+[22:05:00] Acil Durum Protokolü: Polis Girişi.

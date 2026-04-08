@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter devices)",
+      "Bash(flutter pub get)",
+      "Bash(keytool -list -v -keystore \"%USERPROFILE%\\\\.android\\\\debug.keystore\" -alias androiddebugkey -storepass android -keypass android)",
+      "Bash(findstr \"SHA1\\\\|SHA-1\\\\|Certificate\")",
+      "Bash(flutter run -d R5CY21YNNFV --no-pub)"
+    ]
+  }
+}

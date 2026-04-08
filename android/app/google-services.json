@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "449009688447",
+    "project_id": "detective-487310",
+    "storage_bucket": "detective-487310.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:449009688447:android:c3849002cbe9b58086844a",
+        "android_client_info": {
+          "package_name": "com.doctor.doctor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "449009688447-2bbvotg5ulo6m5mht5qihpjt23bpg06i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.doctor.doctor",
+            "certificate_hash": "6e3d14b8ebc651ea15164045e88027ba606d3772"
+          }
+        },
+        {
+          "client_id": "449009688447-2hb3as000magndimms195h4dl664uloc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.doctor.doctor",
+            "certificate_hash": "1fa078e1d07e360bec022845e0abd9e2ddc1140c"
+          }
+        },
+        {
+          "client_id": "449009688447-m39bd08gdv7a4bk69m55033bcpas9b0d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.doctor.doctor",
+            "certificate_hash": "9e90eba573739e58b5530717f581242047f3654f"
+          }
+        },
+        {
+          "client_id": "449009688447-16mfge7mn89tibids6vmhqpi93jl9bi4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbeajmoH2ACv5A6gkoirtMAAzqInKUMuk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "449009688447-16mfge7mn89tibids6vmhqpi93jl9bi4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "449009688447-6q9q3koq2f0cnmg08hospmemssmmp5ud.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.doctor.doctor"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

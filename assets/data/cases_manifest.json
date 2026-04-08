@@ -1,0 +1,18 @@
+[
+    {
+        "id": "case_000",
+        "path": "assets/data/cases/case_000.json"
+    },
+    {
+        "id": "case_003",
+        "path": "assets/data/cases/case_003.json"
+    },
+    {
+        "id": "case_004",
+        "path": "assets/data/cases/case_004.json"
+    },
+    {
+        "id": "case_005",
+        "path": "assets/data/cases/case_005.json"
+    }
+]

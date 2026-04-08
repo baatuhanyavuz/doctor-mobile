@@ -1,0 +1,212 @@
+{
+  "id": "case_000",
+  "title": "Vaka #000: Eğitim Kampı",
+  "shortDescription": "Dedektiflik simülasyonuna hoş geldin. Bu vaka, tüm araçları test etmen için tasarlandı.",
+  "fullDescription": "Bu eğitim vakasında UV ışığı, telefon analizi, adli laboratuvar, kilitli kanıtlar ve dedektif tahtası gibi tüm araçları test edebilirsin.",
+  "difficulty": "tutorial",
+  "price": 0.0,
+  "status": "available",
+  "progressPercent": 0,
+  "coverImage": "assets/images/cases/placeholder.jpg",
+  "victim": {
+    "name": "Test Kurbanı",
+    "age": 30,
+    "occupation": "Test",
+    "causeOfDeath": "Test",
+    "deathTime": "00:00",
+    "biography": "Bu bir test vakasıdır."
+  },
+  "evidences": [
+    {
+      "id": "ev_uv",
+      "title": "UV Işığı Testi",
+      "description": "Ekranda parmağını gezdir. Gizli bir mesaj var!",
+      "type": "photo",
+      "filePath": "assets/images/cases/placeholder.jpg",
+      "location": "Test Odası",
+      "discoveredAt": "10:00",
+      "isUnlocked": true,
+      "isLocked": false,
+      "hasHiddenLayer": true,
+      "hiddenLayerUrl": "assets/images/cases/placeholder.jpg"
+    },
+    {
+      "id": "ev_phone",
+      "title": "Şüpheli Telefonu",
+      "description": "İçeriği incele. Mesajlarda önemli bir şifre var.",
+      "type": "phone",
+      "filePath": "assets/images/cases/placeholder.jpg",
+      "location": "Olay Yeri",
+      "discoveredAt": "10:15",
+      "isUnlocked": true,
+      "isLocked": false,
+      "phoneData": {
+        "ownerName": "Ajan Smith",
+        "contacts": [
+          {
+            "id": "c1",
+            "name": "Patron",
+            "phoneNumber": "555-0100"
+          }
+        ],
+        "chats": [
+          {
+            "contactId": "c1",
+            "contactName": "Patron",
+            "messages": [
+              {
+                "text": "Lab şifresi: 1234",
+                "isFromMe": false,
+                "timestamp": "10:00"
+              },
+              {
+                "text": "Anlaşıldı.",
+                "isFromMe": true,
+                "timestamp": "10:05"
+              }
+            ]
+          }
+        ],
+        "callHistory": [
+          {
+            "contactName": "Patron",
+            "phoneNumber": "555-0100",
+            "timestamp": "09:30",
+            "status": "incoming",
+            "duration": "2 dk"
+          }
+        ],
+        "galleryImages": []
+      }
+    },
+    {
+      "id": "ev_lab",
+      "title": "Kan Örneği",
+      "description": "Tüpleri sürükleyip numunenin üzerine bırak.",
+      "type": "forensic_sample",
+      "filePath": "assets/images/cases/placeholder.jpg",
+      "location": "Laboratuvar",
+      "discoveredAt": "10:30",
+      "isUnlocked": true,
+      "isLocked": false,
+      "forensicData": {
+        "initialImageUrl": "assets/images/cases/placeholder.jpg",
+        "resultImageUrl": "assets/images/cases/placeholder.jpg",
+        "resultText": "ANALİZ SONUCU: Luminol ile pozitif reaksiyon. Numune insan kanı içeriyor!",
+        "reagents": [
+          {
+            "id": "r1",
+            "name": "Su",
+            "color": "#87CEEB",
+            "isCorrect": false
+          },
+          {
+            "id": "r2",
+            "name": "Luminol",
+            "color": "#00FF00",
+            "isCorrect": true
+          },
+          {
+            "id": "r3",
+            "name": "Asit",
+            "color": "#FF4444",
+            "isCorrect": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "ev_locked",
+      "title": "Gizli Belge",
+      "description": "Bu belge şifreli. Şifreyi telefondaki mesajlarda bul.",
+      "type": "document",
+      "filePath": "assets/images/cases/placeholder.jpg",
+      "location": "Kasa",
+      "discoveredAt": "10:45",
+      "isUnlocked": true,
+      "isLocked": true,
+      "unlockCode": "1234",
+      "lockedHint": "Şifre telefonda gizli."
+    }
+  ],
+  "suspects": [
+    {
+      "id": "suspect_01",
+      "name": "Ajan Smith",
+      "age": 40,
+      "occupation": "Eğitmen",
+      "photoPath": "assets/images/cases/placeholder.jpg",
+      "relationshipToVictim": "Eğitmen",
+      "alibi": "Her zaman burada.",
+      "motive": "Yok",
+      "biography": "Seni test ediyor."
+    }
+  ],
+  "interrogations": [
+    {
+      "id": "int_01",
+      "suspectId": "suspect_01",
+      "title": "Eğitim Sorgusu",
+      "dateTime": "10:00",
+      "transcript": [
+        {
+          "question": "Hazır mısın?",
+          "answer": "Her zaman hazırım.",
+          "isClue": false,
+          "isContradiction": false
+        }
+      ],
+      "summary": "Eğitim sorgusu tamamlandı.",
+      "isUnlocked": true,
+      "isCompleted": false,
+      "isInteractive": true,
+      "dialogueTree": [
+        {
+          "id": "start",
+          "text": "Merhaba dedektif. Ben Ajan Smith. Hazır mısın?",
+          "isEnd": false,
+          "options": [
+            {
+              "text": "Evet, hazırım!",
+              "nextNodeId": "ready"
+            }
+          ]
+        },
+        {
+          "id": "ready",
+          "text": "Mükemmel! Başarılar dedektif!",
+          "isEnd": true,
+          "options": []
+        }
+      ]
+    }
+  ],
+  "deductions": [
+    {
+      "id": "ded_1",
+      "requiredEvidenceIds": [
+        "ev_phone",
+        "ev_locked"
+      ],
+      "resultText": "BAĞLANTI: Telefondaki '1234' şifresi, kilitli belgeyi açar!"
+    },
+    {
+      "id": "ded_2",
+      "requiredEvidenceIds": [
+        "ev_uv",
+        "ev_lab"
+      ],
+      "resultText": "BAĞLANTI: UV ışığı altındaki lekeler kan olarak doğrulandı!"
+    }
+  ],
+  "solution": {
+    "guiltyId": "suspect_01",
+    "correctMotive": "Bu bir eğitim senaryosudur.",
+    "explanation": "Tebrikler! Eğitim tamamlandı.",
+    "motiveOptions": [
+      "Bu bir eğitim senaryosudur.",
+      "Para için.",
+      "İntikam için."
+    ]
+  }
+}
