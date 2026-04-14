@@ -145,6 +145,47 @@ class NotificationService {
 
   // ─── Message Handlers ────────────────────────────────────────────
 
+  /// Verilen saniye sonra local notification göster (in-app tek sefer)
+  Future<void> scheduleLocalNotification({
+    required int id,
+    required String title,
+    required String body,
+    required int delaySeconds,
+    String? route,
+  }) async {
+    if (kIsWeb) return;
+
+    // Future.delayed ile basit schedule (uygulama açık olmalı)
+    // Tam gerçekçi schedule için zonedSchedule + timezone kullanılabilir
+    Future.delayed(Duration(seconds: delaySeconds), () async {
+      try {
+        await _localNotifications.show(
+          id,
+          title,
+          body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              _channel.id,
+              _channel.name,
+              channelDescription: _channel.description,
+              importance: Importance.high,
+              priority: Priority.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+            iOS: const DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: true,
+              presentSound: true,
+            ),
+          ),
+          payload: route != null ? jsonEncode({'route': route}) : null,
+        );
+      } catch (e) {
+        AppLogger.error(_tag, 'Local notification hatası', e);
+      }
+    });
+  }
+
   /// Foreground'da mesaj geldiğinde local notification göster
   void _handleForegroundMessage(RemoteMessage message) {
     AppLogger.info(_tag, 'Foreground mesaj: ${message.notification?.title}');

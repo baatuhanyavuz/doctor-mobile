@@ -246,28 +246,44 @@ class _VitalItem extends StatelessWidget {
         children: [
           Icon(icon, color: color, size: 14),
           const SizedBox(width: 3),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                value,
-                style: GoogleFonts.robotoMono(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                  height: 1.1,
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    style: GoogleFonts.robotoMono(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                      height: 1.1,
+                    ),
+                  ),
                 ),
-              ),
-              Text(
-                label.isNotEmpty ? '$label $unit' : unit,
-                style: GoogleFonts.inter(
-                  fontSize: 8,
-                  color: color.withOpacity(0.7),
-                  height: 1.0,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    label.isNotEmpty ? '$label $unit' : unit,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
+                    style: GoogleFonts.inter(
+                      fontSize: 8,
+                      color: color.withOpacity(0.7),
+                      height: 1.0,
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

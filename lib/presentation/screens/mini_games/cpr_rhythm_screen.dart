@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,8 +9,8 @@ import 'mini_game_result_dialog.dart';
 
 /// CPR Ritim Mini Oyunu
 ///
-/// Guitar Hero tarzı ritim oyunu. Oyuncu göğüs kompresyonu
-/// simüle ederek doğru BPM'de (100-120/dk) ritmik basış yapar.
+/// Bir bar soldan sağa gidip gelir. Ortadaki yeşil bölgeye
+/// geldiğinde tıkla — tam zamanlamayla göğüs basısı yap.
 class CprRhythmScreen extends ConsumerStatefulWidget {
   final String caseId;
   final MiniGameDef miniGame;
@@ -28,7 +27,6 @@ class CprRhythmScreen extends ConsumerStatefulWidget {
 
 class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
     with TickerProviderStateMixin {
-  // Theme colors
   static const _bgColor = Color(0xFF0A1628);
   static const _surfaceColor = Color(0xFF132038);
   static const _teal = Color(0xFF00BFA5);
@@ -36,185 +34,199 @@ class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
   static const _red = Color(0xFFEF5350);
   static const _green = Color(0xFF66BB6A);
 
-  // Game state
-  final List<int> _tapTimestamps = [];
-  final List<_CompressionResult> _compressions = [];
-  int _currentBPM = 0;
+  // Oyun durumu
   int _perfectCount = 0;
   int _goodCount = 0;
   int _offCount = 0;
+  int _missCount = 0;
   int _currentStreak = 0;
   int _bestStreak = 0;
   bool _isFinished = false;
   bool _isStarted = false;
   String _feedbackText = '';
   Color _feedbackColor = Colors.white54;
-  Timer? _missedBeatTimer;
   Timer? _feedbackTimer;
 
-  // Animations
-  late AnimationController _buttonPulseController;
-  late AnimationController _rippleController;
-  late AnimationController _metronomeController;
-  late AnimationController _bgPulseController;
-  late Animation<double> _buttonScale;
-  late Animation<double> _rippleSize;
-  late Animation<double> _rippleOpacity;
-  late Animation<double> _metronomeValue;
+  // Bar animasyonu
+  late AnimationController _barController;
+  late Animation<double> _barPosition; // 0.0 (sol) → 1.0 (sağ)
 
-  // Derived from miniGame
+  // Buton animasyonu
+  late AnimationController _buttonPulseController;
+  late Animation<double> _buttonScale;
+
+  // Nabız efekti
+  late AnimationController _heartbeatController;
+
+  // Kaçırma sayacı — bar ortadan geçtiyse ve tıklanmadıysa
+  bool _canTapThisCycle = true;
+
   int get _targetBPM => widget.miniGame.targetBPM;
   int get _totalCompressions => widget.miniGame.compressionCount;
-  int get _tolerance => widget.miniGame.bpmTolerance;
-
-  int get _compressionsDone => _compressions.length;
+  int get _compressionsDone => _perfectCount + _goodCount + _offCount + _missCount;
   double get _progress =>
       _totalCompressions > 0 ? _compressionsDone / _totalCompressions : 0.0;
+
+  /// Bar hızı: hedef BPM'e göre bir tam salınım süresi
+  /// 110 BPM = ~545ms per beat → bar bir gidip gelme ~545ms
+  int get _barDurationMs => (60000 / _targetBPM).round();
 
   @override
   void initState() {
     super.initState();
 
+    _barController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: _barDurationMs),
+    );
+
+    _barPosition = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _barController, curve: Curves.easeInOut),
+    );
+
     _buttonPulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 150),
+      duration: const Duration(milliseconds: 120),
     );
-    _buttonScale = Tween<double>(begin: 1.0, end: 0.88).animate(
-      CurvedAnimation(
-          parent: _buttonPulseController, curve: Curves.easeInOut),
-    );
-
-    _rippleController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _rippleSize = Tween<double>(begin: 1.0, end: 2.5).animate(
-      CurvedAnimation(parent: _rippleController, curve: Curves.easeOut),
-    );
-    _rippleOpacity = Tween<double>(begin: 0.6, end: 0.0).animate(
-      CurvedAnimation(parent: _rippleController, curve: Curves.easeOut),
+    _buttonScale = Tween<double>(begin: 1.0, end: 0.85).animate(
+      CurvedAnimation(parent: _buttonPulseController, curve: Curves.easeInOut),
     );
 
-    _metronomeController = AnimationController(
+    _heartbeatController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: (60000 / _targetBPM).round()),
-    )..repeat(reverse: true);
-    _metronomeValue = Tween<double>(begin: -1.0, end: 1.0).animate(
-      CurvedAnimation(
-          parent: _metronomeController, curve: Curves.easeInOut),
+      duration: const Duration(milliseconds: 200),
     );
 
-    _bgPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
+    // Bar gidip-gelme ve kaçırma kontrolü
+    _barController.addStatusListener(_onBarStatus);
+  }
+
+  void _onBarStatus(AnimationStatus status) {
+    if (_isFinished) return;
+
+    if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      // Bar bir uça ulaştı — eğer ortadan geçip tıklanmadıysa = kaçırdı
+      if (!_canTapThisCycle && _isStarted) {
+        // Zaten tıklandı bu cycle'da, sorun yok
+      }
+
+      // Eğer bar ortadan geçti ama tıklanmadıysa (ileriki kontrolde)
+      if (_isStarted && _canTapThisCycle) {
+        // Bir önceki yarım salınımda tıklama olmadı mı kontrol et
+        // Bu durumu _canTapThisCycle ile takip ediyoruz
+      }
+
+      // Yeni cycle başlat
+      _canTapThisCycle = true;
+
+      if (status == AnimationStatus.completed) {
+        _barController.reverse();
+      } else {
+        _barController.forward();
+      }
+    }
+  }
+
+  void _startGame() {
+    setState(() => _isStarted = true);
+    _barController.forward();
+    // Kaçırma kontrolü: her yarım beat'te bir kontrol
+    Timer.periodic(Duration(milliseconds: _barDurationMs), (timer) {
+      if (_isFinished || !mounted) {
+        timer.cancel();
+        return;
+      }
+      // Eğer bu cycle'da tıklanmadıysa miss say
+      if (_canTapThisCycle && _isStarted) {
+        _registerMiss();
+      }
+      _canTapThisCycle = true;
+    });
+  }
+
+  void _registerMiss() {
+    _missCount++;
+    _currentStreak = 0;
+    _showFeedback('KAÇIRDIN!', _red);
+    HapticFeedback.heavyImpact();
+
+    if (_compressionsDone >= _totalCompressions) {
+      _finishGame();
+    }
   }
 
   @override
   void dispose() {
-    _missedBeatTimer?.cancel();
     _feedbackTimer?.cancel();
+    _barController.dispose();
     _buttonPulseController.dispose();
-    _rippleController.dispose();
-    _metronomeController.dispose();
-    _bgPulseController.dispose();
+    _heartbeatController.dispose();
     super.dispose();
   }
 
   void _onTap() {
     if (_isFinished) return;
 
-    final now = DateTime.now().millisecondsSinceEpoch;
-
     if (!_isStarted) {
-      setState(() => _isStarted = true);
+      _startGame();
+      return;
     }
 
-    _tapTimestamps.add(now);
+    if (!_canTapThisCycle) return; // Bu cycle'da zaten tıkladı
+    _canTapThisCycle = false;
 
-    // Trigger button animation
+    // Buton animasyonu
     _buttonPulseController.forward().then((_) {
       if (mounted) _buttonPulseController.reverse();
     });
-
-    // Trigger ripple
-    _rippleController.reset();
-    _rippleController.forward();
-
-    // Haptic feedback
+    _heartbeatController.forward(from: 0);
     HapticFeedback.lightImpact();
 
-    // Reset missed beat timer
-    _missedBeatTimer?.cancel();
-    _missedBeatTimer = Timer(const Duration(milliseconds: 750), () {
-      if (!mounted || _isFinished) return;
-      _showFeedback('KAÇIRDIN!', _red);
-    });
+    // Bar pozisyonuna göre skor hesapla
+    // 0.0 = sol uç, 0.5 = orta (perfect), 1.0 = sağ uç
+    final pos = _barPosition.value;
+    final distFromCenter = (pos - 0.5).abs(); // 0 = tam orta, 0.5 = uçta
 
-    // Calculate BPM from last 2 taps
     _CompressionResult result;
-    if (_tapTimestamps.length >= 2) {
-      final lastInterval =
-          _tapTimestamps.last - _tapTimestamps[_tapTimestamps.length - 2];
-      final instantBPM =
-          lastInterval > 0 ? (60000 / lastInterval).round() : 0;
-
-      setState(() => _currentBPM = instantBPM);
-
-      final perfectLow = _targetBPM - (_tolerance ~/ 2);
-      final perfectHigh = _targetBPM + (_tolerance ~/ 2);
-      final goodLow = _targetBPM - _tolerance;
-      final goodHigh = _targetBPM + _tolerance;
-
-      if (instantBPM >= perfectLow && instantBPM <= perfectHigh) {
-        result = _CompressionResult.perfect;
-        _perfectCount++;
-        _currentStreak++;
-        _showFeedback('Harika!', _green);
-        _bgPulseController.forward().then((_) {
-          if (mounted) _bgPulseController.reverse();
-        });
-      } else if (instantBPM >= goodLow && instantBPM <= goodHigh) {
-        result = _CompressionResult.good;
-        _goodCount++;
-        _currentStreak++;
-        _showFeedback('İyi!', _teal);
-        _bgPulseController.forward().then((_) {
-          if (mounted) _bgPulseController.reverse();
-        });
-      } else if (instantBPM > goodHigh) {
-        result = _CompressionResult.off;
-        _offCount++;
-        _currentStreak = 0;
-        _showFeedback('Hızlı!', _amber);
-      } else {
-        result = _CompressionResult.off;
-        _offCount++;
-        _currentStreak = 0;
-        _showFeedback('Yavaş!', _red);
-      }
-    } else {
-      // First tap — no BPM yet
+    if (distFromCenter <= 0.08) {
+      // Tam orta — Perfect!
+      result = _CompressionResult.perfect;
+      _perfectCount++;
+      _currentStreak++;
+      _showFeedback('Harika!', _green);
+    } else if (distFromCenter <= 0.18) {
+      // Yakın — Good
       result = _CompressionResult.good;
       _goodCount++;
-      _currentStreak = 1;
-      _showFeedback('Devam Et!', _teal);
+      _currentStreak++;
+      _showFeedback('İyi!', _teal);
+    } else {
+      // Uzak — Off
+      result = _CompressionResult.off;
+      _offCount++;
+      _currentStreak = 0;
+      if (pos < 0.5) {
+        _showFeedback('Erken!', _amber);
+      } else {
+        _showFeedback('Geç!', _amber);
+      }
     }
 
     if (_currentStreak > _bestStreak) {
       _bestStreak = _currentStreak;
     }
 
-    setState(() {
-      _compressions.add(result);
-    });
+    setState(() {});
 
-    // Check completion
     if (_compressionsDone >= _totalCompressions) {
-      _missedBeatTimer?.cancel();
-      setState(() => _isFinished = true);
-      _calculateAndSubmit();
+      _finishGame();
     }
+  }
+
+  void _finishGame() {
+    _barController.stop();
+    setState(() => _isFinished = true);
+    _calculateAndSubmit();
   }
 
   void _showFeedback(String text, Color color) {
@@ -223,25 +235,18 @@ class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
       _feedbackText = text;
       _feedbackColor = color;
     });
-    _feedbackTimer = Timer(const Duration(milliseconds: 800), () {
-      if (mounted) {
-        setState(() => _feedbackText = '');
-      }
+    _feedbackTimer = Timer(const Duration(milliseconds: 600), () {
+      if (mounted) setState(() => _feedbackText = '');
     });
   }
 
   void _calculateAndSubmit() {
-    // Scoring: perfect=30, good=20, off=5, streak bonus
     int score = 0;
     score += _perfectCount * 30;
     score += _goodCount * 20;
     score += _offCount * 5;
-
-    // Streak bonus: 5+ perfect in a row = +100
-    if (_bestStreak >= 5) {
-      score += 100;
-    }
-
+    // Miss = 0 puan
+    if (_bestStreak >= 5) score += 100;
     _submitResult(score.clamp(0, 1000));
   }
 
@@ -268,19 +273,6 @@ class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
     }
   }
 
-  Color get _bpmColor {
-    if (_currentBPM == 0) return Colors.white24;
-    final goodLow = _targetBPM - _tolerance;
-    final goodHigh = _targetBPM + _tolerance;
-    final perfectLow = _targetBPM - (_tolerance ~/ 2);
-    final perfectHigh = _targetBPM + (_tolerance ~/ 2);
-
-    if (_currentBPM >= perfectLow && _currentBPM <= perfectHigh) return _green;
-    if (_currentBPM >= goodLow && _currentBPM <= goodHigh) return _teal;
-    if (_currentBPM > goodHigh) return _amber;
-    return _red;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -289,74 +281,56 @@ class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
         backgroundColor: _surfaceColor,
         title: Text(
           widget.miniGame.title.isNotEmpty ? widget.miniGame.title : 'CPR',
-          style:
-              GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
+          style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600),
         ),
-        actions: [
-          // BPM Badge
-          Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: _bpmColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: _bpmColor.withOpacity(0.4)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.favorite, color: _bpmColor, size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  '$_currentBPM BPM',
-                  style: GoogleFonts.robotoMono(
-                    color: _bpmColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
-      body: AnimatedBuilder(
-        animation: _bgPulseController,
-        builder: (context, child) {
-          return Container(
-            decoration: BoxDecoration(
-              color: _bgColor,
-              gradient: _bgPulseController.isAnimating
-                  ? RadialGradient(
-                      center: Alignment.center,
-                      radius: 1.2,
-                      colors: [
-                        _red.withOpacity(0.06 * _bgPulseController.value),
-                        _bgColor,
-                      ],
-                    )
-                  : null,
-            ),
-            child: child,
-          );
-        },
-        child: SafeArea(
+      body: SafeArea(
+        child: GestureDetector(
+          onTapDown: (_) => _onTap(),
+          behavior: HitTestBehavior.opaque,
           child: Column(
             children: [
-              // BPM Display + Target Zone
-              _buildBPMSection(),
+              const SizedBox(height: 16),
 
-              // Metronome bar
-              _buildMetronomeBar(),
-
+              // Feedback metin
+              SizedBox(
+                height: 44,
+                child: Center(
+                  child: AnimatedOpacity(
+                    opacity: _feedbackText.isNotEmpty ? 1.0 : 0.0,
+                    duration: const Duration(milliseconds: 150),
+                    child: Text(
+                      _feedbackText,
+                      style: GoogleFonts.poppins(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: _feedbackColor,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: 8),
 
-              // Feedback text
-              _buildFeedbackText(),
+              // === ANA RİTİM BARI ===
+              _buildRhythmBar(),
+              const SizedBox(height: 8),
 
-              // Main tap area
-              Expanded(child: _buildTapArea()),
+              // Açıklama
+              Text(
+                _isStarted ? 'Yeşil bölgeye geldiğinde TIKLA!' : 'Başlamak için dokun',
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  color: Colors.white38,
+                ),
+              ),
+              const SizedBox(height: 24),
 
-              // Progress + Stats
+              // Kalp butonu
+              Expanded(child: _buildHeartArea()),
+
+              // Alt istatistik
               _buildBottomStats(),
             ],
           ),
@@ -365,215 +339,128 @@ class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
     );
   }
 
-  Widget _buildBPMSection() {
+  /// Soldan sağa gidip gelen ritim barı — ortası yeşil hedef bölge
+  Widget _buildRhythmBar() {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _surfaceColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white10),
-      ),
-      child: Column(
-        children: [
-          // BPM Number
-          Text(
-            _isStarted ? '$_currentBPM' : '--',
-            style: GoogleFonts.robotoMono(
-              fontSize: 48,
-              fontWeight: FontWeight.bold,
-              color: _isStarted ? _bpmColor : Colors.white24,
-              height: 1.0,
-            ),
-          ),
-          Text(
-            'BPM',
-            style: GoogleFonts.robotoMono(
-              fontSize: 14,
-              color: Colors.white38,
-              letterSpacing: 4,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Target zone indicator
-          _buildTargetZoneBar(),
-
-          const SizedBox(height: 8),
-
-          // Target label
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                  color: _green.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Hedef: ${_targetBPM - _tolerance} - ${_targetBPM + _tolerance} BPM',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  color: Colors.white54,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTargetZoneBar() {
-    return SizedBox(
-      height: 20,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          // Map BPM range 60-160 to bar width
-          const minBPM = 60.0;
-          const maxBPM = 160.0;
-          const range = maxBPM - minBPM;
-
-          double bpmToX(double bpm) =>
-              ((bpm - minBPM) / range * width).clamp(0, width);
-
-          final goodLeft = bpmToX((_targetBPM - _tolerance).toDouble());
-          final goodRight = bpmToX((_targetBPM + _tolerance).toDouble());
-          final perfectLeft = bpmToX((_targetBPM - _tolerance / 2).toDouble());
-          final perfectRight =
-              bpmToX((_targetBPM + _tolerance / 2).toDouble());
-          final currentX =
-              _currentBPM > 0 ? bpmToX(_currentBPM.toDouble()) : -10.0;
-
-          return Stack(
-            children: [
-              // Background bar
-              Container(
-                width: width,
-                height: 8,
-                margin: const EdgeInsets.only(top: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-              ),
-
-              // Good zone
-              Positioned(
-                left: goodLeft,
-                top: 6,
-                child: Container(
-                  width: (goodRight - goodLeft).clamp(0, width),
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: _teal.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-
-              // Perfect zone
-              Positioned(
-                left: perfectLeft,
-                top: 6,
-                child: Container(
-                  width: (perfectRight - perfectLeft).clamp(0, width),
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: _green.withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-
-              // Current BPM indicator
-              if (_currentBPM > 0)
-                Positioned(
-                  left: (currentX - 6).clamp(0, width - 12),
-                  top: 0,
-                  child: Container(
-                    width: 12,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: _bpmColor,
-                      borderRadius: BorderRadius.circular(3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _bpmColor.withOpacity(0.5),
-                          blurRadius: 6,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildMetronomeBar() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: _surfaceColor.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(8),
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      height: 64,
       child: AnimatedBuilder(
-        animation: _metronomeValue,
+        animation: _barPosition,
         builder: (context, _) {
           return LayoutBuilder(
             builder: (context, constraints) {
               final width = constraints.maxWidth;
-              final indicatorX =
-                  ((_metronomeValue.value + 1) / 2) * (width - 16);
+              final indicatorX = _barPosition.value * (width - 20);
 
-              return SizedBox(
-                height: 12,
-                child: Stack(
-                  children: [
-                    // Track
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 5,
-                      child: Container(
-                        height: 2,
-                        color: Colors.white.withOpacity(0.08),
+              // Hedef bölge: ortanın %16'lık kısmı (perfect) ve %36'lık kısmı (good)
+              final perfectLeft = width * 0.42;
+              final perfectRight = width * 0.58;
+              final goodLeft = width * 0.32;
+              final goodRight = width * 0.68;
+
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  // Arka plan bar
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    top: 20,
+                    child: Container(
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.04),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.white10),
                       ),
                     ),
-                    // Center mark
-                    Positioned(
-                      left: width / 2 - 1,
-                      top: 2,
-                      child: Container(
-                        width: 2,
-                        height: 8,
-                        color: _teal.withOpacity(0.4),
+                  ),
+
+                  // Good bölge (teal)
+                  Positioned(
+                    left: goodLeft,
+                    top: 20,
+                    child: Container(
+                      width: goodRight - goodLeft,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: _teal.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    // Moving indicator
-                    Positioned(
-                      left: indicatorX,
-                      top: 0,
-                      child: Container(
-                        width: 16,
-                        height: 12,
-                        decoration: BoxDecoration(
-                          color: _teal.withOpacity(0.8),
-                          borderRadius: BorderRadius.circular(3),
+                  ),
+
+                  // Perfect bölge (yeşil)
+                  Positioned(
+                    left: perfectLeft,
+                    top: 20,
+                    child: Container(
+                      width: perfectRight - perfectLeft,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: _green.withOpacity(0.25),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: _green.withOpacity(0.5), width: 2),
+                      ),
+                    ),
+                  ),
+
+                  // Ortadaki "BAS" etiketi
+                  Positioned(
+                    left: perfectLeft,
+                    top: 0,
+                    child: SizedBox(
+                      width: perfectRight - perfectLeft,
+                      height: 18,
+                      child: Center(
+                        child: Text(
+                          'BAS',
+                          style: GoogleFonts.robotoMono(
+                            fontSize: 10,
+                            color: _green.withOpacity(0.7),
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+
+                  // Hareketli gösterge (cursor)
+                  Positioned(
+                    left: indicatorX,
+                    top: 14,
+                    child: Container(
+                      width: 20,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: _getCursorColor(),
+                        borderRadius: BorderRadius.circular(6),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _getCursorColor().withOpacity(0.6),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // Sol/sağ uç etiketleri
+                  Positioned(
+                    left: 4,
+                    top: 48,
+                    child: Text('Erken',
+                        style: GoogleFonts.inter(fontSize: 9, color: Colors.white24)),
+                  ),
+                  Positioned(
+                    right: 4,
+                    top: 48,
+                    child: Text('Geç',
+                        style: GoogleFonts.inter(fontSize: 9, color: Colors.white24)),
+                  ),
+                ],
               );
             },
           );
@@ -582,127 +469,72 @@ class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
     );
   }
 
-  Widget _buildFeedbackText() {
-    return SizedBox(
-      height: 40,
-      child: Center(
-        child: AnimatedOpacity(
-          opacity: _feedbackText.isNotEmpty ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 200),
-          child: Text(
-            _feedbackText,
-            style: GoogleFonts.poppins(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: _feedbackColor,
-              letterSpacing: 2,
-            ),
-          ),
-        ),
-      ),
-    );
+  Color _getCursorColor() {
+    final pos = _barPosition.value;
+    final dist = (pos - 0.5).abs();
+    if (dist <= 0.08) return _green;
+    if (dist <= 0.18) return _teal;
+    return _red.withOpacity(0.7);
   }
 
-  Widget _buildTapArea() {
-    return GestureDetector(
-      onTapDown: (_) => _onTap(),
-      behavior: HitTestBehavior.opaque,
-      child: Center(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Ripple effect
-            AnimatedBuilder(
-              animation: _rippleController,
-              builder: (context, _) {
-                if (!_rippleController.isAnimating) {
-                  return const SizedBox.shrink();
-                }
-                return Container(
-                  width: 140 * _rippleSize.value,
-                  height: 140 * _rippleSize.value,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: _bpmColor.withOpacity(_rippleOpacity.value),
-                      width: 2,
-                    ),
-                  ),
-                );
-              },
-            ),
-
-            // Outer ring
-            Container(
-              width: 180,
-              height: 180,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: _isStarted
-                      ? _bpmColor.withOpacity(0.3)
-                      : _teal.withOpacity(0.2),
-                  width: 2,
-                ),
+  /// Büyük kalp + tıklama alanı
+  Widget _buildHeartArea() {
+    return Center(
+      child: AnimatedBuilder(
+        animation: _heartbeatController,
+        builder: (context, child) {
+          final scale = 1.0 + (_heartbeatController.value * 0.15);
+          return Transform.scale(scale: scale, child: child);
+        },
+        child: AnimatedBuilder(
+          animation: _buttonScale,
+          builder: (context, child) {
+            return Transform.scale(scale: _buttonScale.value, child: child);
+          },
+          child: Container(
+            width: 160,
+            height: 160,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: RadialGradient(
+                colors: [
+                  _red.withOpacity(0.25),
+                  _red.withOpacity(0.08),
+                ],
               ),
-            ),
-
-            // Main button
-            AnimatedBuilder(
-              animation: _buttonScale,
-              builder: (context, child) {
-                return Transform.scale(
-                  scale: _buttonScale.value,
-                  child: child,
-                );
-              },
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      (_isStarted ? _bpmColor : _teal).withOpacity(0.3),
-                      (_isStarted ? _bpmColor : _teal).withOpacity(0.1),
-                    ],
-                  ),
-                  border: Border.all(
-                    color: (_isStarted ? _bpmColor : _teal).withOpacity(0.6),
-                    width: 3,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color:
-                          (_isStarted ? _bpmColor : _teal).withOpacity(0.2),
-                      blurRadius: 20,
-                      spreadRadius: 4,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.favorite,
-                      color: _isStarted ? _bpmColor : _teal,
-                      size: 40,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _isStarted ? 'BAS' : 'BAŞLA',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                  ],
-                ),
+              border: Border.all(
+                color: _red.withOpacity(0.4),
+                width: 3,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: _red.withOpacity(0.15),
+                  blurRadius: 30,
+                  spreadRadius: 5,
+                ),
+              ],
             ),
-          ],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.favorite,
+                  color: _red,
+                  size: 50,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _isStarted ? 'BAS!' : 'BAŞLA',
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 3,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -718,16 +550,11 @@ class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
       ),
       child: Column(
         children: [
-          // Progress bar
+          // İlerleme barı
           Row(
             children: [
-              Text(
-                'Kompresyon',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: Colors.white54,
-                ),
-              ),
+              Text('Kompresyon',
+                  style: GoogleFonts.inter(fontSize: 12, color: Colors.white54)),
               const Spacer(),
               Text(
                 '$_compressionsDone / $_totalCompressions',
@@ -751,34 +578,14 @@ class _CprRhythmScreenState extends ConsumerState<CprRhythmScreen>
           ),
           const SizedBox(height: 12),
 
-          // Stats row
+          // İstatistikler
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _StatBadge(
-                icon: Icons.star,
-                label: 'Harika',
-                value: '$_perfectCount',
-                color: _green,
-              ),
-              _StatBadge(
-                icon: Icons.thumb_up,
-                label: 'İyi',
-                value: '$_goodCount',
-                color: _teal,
-              ),
-              _StatBadge(
-                icon: Icons.close,
-                label: 'Kaçık',
-                value: '$_offCount',
-                color: _red,
-              ),
-              _StatBadge(
-                icon: Icons.local_fire_department,
-                label: 'Seri',
-                value: '$_currentStreak',
-                color: _amber,
-              ),
+              _StatBadge(icon: Icons.star, label: 'Harika', value: '$_perfectCount', color: _green),
+              _StatBadge(icon: Icons.thumb_up, label: 'İyi', value: '$_goodCount', color: _teal),
+              _StatBadge(icon: Icons.close, label: 'Kaçık', value: '${_offCount + _missCount}', color: _red),
+              _StatBadge(icon: Icons.local_fire_department, label: 'Seri', value: '$_currentStreak', color: _amber),
             ],
           ),
         ],
@@ -806,36 +613,19 @@ class _StatBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: color.withOpacity(0.3)),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, color: color, size: 14),
-              Text(
-                value,
-                style: GoogleFonts.robotoMono(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-            ],
+        Icon(icon, color: color, size: 18),
+        const SizedBox(height: 2),
+        Text(
+          value,
+          style: GoogleFonts.robotoMono(
+            color: color,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 4),
         Text(
           label,
-          style: GoogleFonts.inter(
-            fontSize: 9,
-            color: Colors.white38,
-          ),
+          style: GoogleFonts.inter(color: Colors.white38, fontSize: 10),
         ),
       ],
     );

@@ -4,14 +4,32 @@
     "description": "İnteraktif cinayet çözme oyunu. Kanıtları incele, tanıkları sorgula ve katili bul!",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#1a1a1a",
-    "theme_color": "#ff4757",
+    "background_color": "#0A1628",
+    "theme_color": "#00BFA5",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
-    "categories": ["games", "entertainment"],
+    "categories": [
+        "games",
+        "entertainment"
+    ],
     "lang": "tr",
     "dir": "ltr",
     "scope": "/",
+    "screenshots": [],
+    "shortcuts": [
+        {
+            "name": "Vakaları Gör",
+            "short_name": "Vakalar",
+            "description": "Tüm suç dosyalarını incele",
+            "url": "/",
+            "icons": [
+                {
+                    "src": "icons/Icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
+        }
+    ],
     "icons": [
         {
             "src": "icons/Icon-192.png",
@@ -34,21 +52,6 @@
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
-        }
-    ],
-    "screenshots": [],
-    "shortcuts": [
-        {
-            "name": "Vakaları Gör",
-            "short_name": "Vakalar",
-            "description": "Tüm suç dosyalarını incele",
-            "url": "/",
-            "icons": [
-                {
-                    "src": "icons/Icon-192.png",
-                    "sizes": "192x192"
-                }
-            ]
         }
     ]
 }

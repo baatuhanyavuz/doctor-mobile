@@ -11,6 +11,9 @@ import '../../../../data/models/solution.dart';
 import '../../../providers/auth_providers.dart';
 import '../../../providers/config_provider.dart';
 import '../../../providers/ppe_provider.dart';
+import '../../../providers/energy_provider.dart';
+import '../../../providers/unlocked_cases_provider.dart';
+import '../../../widgets/case_unlocked_reveal.dart';
 
 class SolveTab extends ConsumerStatefulWidget {
   final Case gameCase;
@@ -25,6 +28,7 @@ class _SolveTabState extends ConsumerState<SolveTab> {
   String? _selectedDiagnosisId;
   String? _selectedTreatment;
   bool _isSubmitting = false;
+  String? _newlyUnlockedCaseId;
 
   /// Backend'e vaka tamamlama bilgisi gönder ve XP kazan
   Future<Map<String, dynamic>?> _completeCaseOnBackend(int score) async {
@@ -397,7 +401,8 @@ class _SolveTabState extends ConsumerState<SolveTab> {
       if (dangerous != null) {
         final confirmed = await _showDangerousWarning(dangerous);
         if (!confirmed) return; // Kullanıcı iptal etti
-        // Kullanıcı tehlikeli tedaviyi onayladı — başarısız ending
+        // Tehlikeli tedavi uyguladı — enerji eksilt
+        await ref.read(energyProvider.notifier).consumeEnergy();
         _handleDangerousTreatmentFailure(dangerous);
         return;
       }
@@ -416,6 +421,16 @@ class _SolveTabState extends ConsumerState<SolveTab> {
 
         // Backend'i cagir
         final result = await _completeCaseOnBackend(score);
+
+        // Aynı zorluktan yeni vaka aç (Candy Crush mantığı)
+        final difficultyName = widget.gameCase.difficulty.name;
+        final newlyUnlocked = await ref
+            .read(unlockedCasesProvider.notifier)
+            .unlockNext(difficultyName);
+        // Reveal animasyonu conclusion'dan sonra gösterilmesi için state'te sakla
+        if (newlyUnlocked != null) {
+          _newlyUnlockedCaseId = newlyUnlocked;
+        }
 
         setState(() => _isSubmitting = false);
 
@@ -465,16 +480,20 @@ class _SolveTabState extends ConsumerState<SolveTab> {
           }
         }
       } else if (isCorrectSuspect && !isCorrectMotive) {
+        // Yanlış tedavi -> 1 enerji eksilt
+        await ref.read(energyProvider.notifier).consumeEnergy();
         _showResultDialog(
           isSuccess: false,
           title: 'TEŞHİS DOĞRU, TEDAVİ YANLIŞ!',
-          message: 'Doğru teşhisi koydunuz ama tedavi planı uygun değil. Tedavi seçeneklerini tekrar gözden geçirin.',
+          message: '-1 enerji. Doğru teşhisi koydunuz ama tedavi planı uygun değil. Tedavi seçeneklerini tekrar gözden geçirin.',
         );
       } else {
+        // Yanlış teşhis -> 1 enerji eksilt
+        await ref.read(energyProvider.notifier).consumeEnergy();
         _showResultDialog(
           isSuccess: false,
           title: 'YANLIŞ TEŞHİS!',
-          message: 'Bu teşhis doğru değil. Tıbbi verileri tekrar inceleyin ve yeni bir değerlendirme yapın.',
+          message: '-1 enerji. Bu teşhis doğru değil. Tıbbi verileri tekrar inceleyin ve yeni bir değerlendirme yapın.',
         );
       }
     } catch (e, stackTrace) {
@@ -596,9 +615,15 @@ class _SolveTabState extends ConsumerState<SolveTab> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.of(ctx).pop();
-                    context.go('/conclusion/${widget.gameCase.id}');
+                    // Yeni vaka açıldıysa reveal göster
+                    if (_newlyUnlockedCaseId != null && context.mounted) {
+                      await CaseUnlockedReveal.show(context, _newlyUnlockedCaseId!);
+                    }
+                    if (context.mounted) {
+                      context.go('/conclusion/${widget.gameCase.id}');
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.amber.withOpacity(0.2),

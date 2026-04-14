@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../presentation/screens/dashboard/dashboard_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
+import '../../presentation/screens/home/category_detail_screen.dart';
+import '../../presentation/screens/onboarding/difficulty_onboarding_screen.dart';
+import '../../data/models/case.dart';
 import '../../presentation/screens/game_screen.dart';
 import '../../presentation/screens/briefing_screen.dart';
 import '../../presentation/screens/conclusion_screen.dart';
@@ -115,6 +118,25 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'cases',
             builder: (context, state) => const HomeScreen(),
+          ),
+
+          // ─── Zorluk Seviyeleri Onboarding ────────────────────
+          GoRoute(
+            path: 'difficulty-onboarding',
+            builder: (context, state) => const DifficultyOnboardingScreen(),
+          ),
+
+          // ─── Zorluk Kategori Detayı ──────────────────────────
+          GoRoute(
+            path: 'category/:difficulty',
+            builder: (context, state) {
+              final name = state.pathParameters['difficulty']!;
+              final diff = Difficulty.values.firstWhere(
+                (d) => d.name == name,
+                orElse: () => Difficulty.easy,
+              );
+              return CategoryDetailScreen(difficulty: diff);
+            },
           ),
 
           // ─── Profil ───────────────────────────────────────────

@@ -193,14 +193,14 @@ class _BallisticScreenState extends ConsumerState<BallisticScreen>
                 child: CustomPaint(
                   painter: _BallisticScenePainter(
                     guessPosition: _guessPosition,
-                    guessAngle: _guessAngle,
+                    guessAngle: 0,
                     impactPoint: widget.miniGame.impactPoint != null
                         ? Offset(
-                            (widget.miniGame.impactPoint!['x'] as num?)?.toDouble() ?? 0,
-                            (widget.miniGame.impactPoint!['y'] as num?)?.toDouble() ?? 0,
+                            (widget.miniGame.impactPoint!['x'] as num?)?.toDouble() ?? 450,
+                            (widget.miniGame.impactPoint!['y'] as num?)?.toDouble() ?? 300,
                           )
-                        : null,
-                    trajectoryAngle: widget.miniGame.bulletTrajectoryAngle,
+                        : const Offset(450, 300),
+                    trajectoryAngle: null,
                   ),
                   size: Size.infinite,
                 ),
@@ -208,32 +208,24 @@ class _BallisticScreenState extends ConsumerState<BallisticScreen>
             ),
           ),
 
-          // Açı ayarlama slider
+          // Bilgilendirici strip (açı slider kaldırıldı)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             color: const Color(0xFF132038),
-            child: Column(
+            child: Row(
               children: [
-                Row(
-                  children: [
-                    Icon(Icons.rotate_right, color: Colors.white54, size: 18),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Olcum Acisi: ${_guessAngle.toStringAsFixed(0)}°',
-                      style: GoogleFonts.robotoMono(color: Colors.white70, fontSize: 13),
+                Icon(Icons.touch_app, color: Colors.white54, size: 16),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    _guessPosition == null
+                        ? 'Şüpheli gölgeye dokunarak işaretleyin'
+                        : 'İşaret koyuldu. Başka bir noktayı seçmek için tekrar dokunun.',
+                    style: GoogleFonts.inter(
+                      color: Colors.white60,
+                      fontSize: 12,
                     ),
-                  ],
-                ),
-                Slider(
-                  value: _guessAngle,
-                  min: 0,
-                  max: 360,
-                  divisions: 72,
-                  activeColor: const Color(0xFF00BFA5),
-                  inactiveColor: Colors.white12,
-                  onChanged: _isSubmitting
-                      ? null
-                      : (v) => setState(() => _guessAngle = v),
+                  ),
                 ),
               ],
             ),
@@ -356,134 +348,225 @@ class _BallisticScenePainter extends CustomPainter {
       canvas.drawLine(Offset(0, i.toDouble()), Offset(size.width, i.toDouble()), gridPaint);
     }
 
-    // Anomali isaretcisi
-    if (impactPoint != null) {
-      // Normalize impact point to screen
-      final normalizedImpact = Offset(
-        impactPoint!.dx / 900 * size.width,
-        impactPoint!.dy / 600 * size.height,
-      );
+    // Şematik akciğer/göğüs kafesi çizimi (placeholder tıbbi görsel)
+    _drawChestXray(canvas, size);
 
-      final impactPaint = Paint()
-        ..color = const Color(0xFF42A5F5).withOpacity(0.8)
-        ..style = PaintingStyle.fill;
+    // Şüpheli gölgeler — oyuncunun aralarından doğru olanı seçmesi için
+    _drawSuspiciousShadows(canvas, size);
 
-      canvas.drawCircle(normalizedImpact, 8, impactPaint);
+    // NOT: Doğru anomali noktası (impactPoint) artık _drawSuspiciousShadows
+    // içinde şüpheli gölgelerle birlikte çiziliyor — oyuncunun doğruyu
+    // seçmesi için gizli ipucu olarak
 
-      // Anomali isareti (carpi)
-      final crossPaint = Paint()
-        ..color = const Color(0xFF42A5F5)
-        ..strokeWidth = 2;
-      canvas.drawLine(
-        normalizedImpact - const Offset(12, 12),
-        normalizedImpact + const Offset(12, 12),
-        crossPaint,
-      );
-      canvas.drawLine(
-        normalizedImpact + const Offset(-12, 12),
-        normalizedImpact + const Offset(12, -12),
-        crossPaint,
-      );
-
-      // "ANOMALi NOKTASI" etiketi
-      final textPainter = TextPainter(
-        text: TextSpan(
-          text: 'mini_games.hit_point'.tr(),
-          style: GoogleFonts.robotoMono(
-            color: const Color(0xFF42A5F5).withOpacity(0.7),
-            fontSize: 9,
-          ),
-        ),
-        textDirection: ui.TextDirection.ltr,
-      )..layout();
-      textPainter.paint(canvas, normalizedImpact + const Offset(14, -6));
-
-      // Olcum referans cizgisi (ipucu)
-      if (trajectoryAngle != null) {
-        final trajPaint = Paint()
-          ..color = const Color(0xFF42A5F5).withOpacity(0.2)
-          ..strokeWidth = 1
-          ..style = PaintingStyle.stroke;
-
-        final angleRad = trajectoryAngle! * pi / 180;
-        final dx = cos(angleRad) * 300;
-        final dy = sin(angleRad) * 300;
-
-        // Kesikli cizgi efekti
-        const dashLen = 8.0;
-        const gapLen = 6.0;
-        final totalLen = sqrt(dx * dx + dy * dy);
-        var drawn = 0.0;
-        while (drawn < totalLen) {
-          final startFrac = drawn / totalLen;
-          final endFrac = min((drawn + dashLen) / totalLen, 1.0);
-          canvas.drawLine(
-            normalizedImpact + Offset(dx * startFrac, dy * startFrac),
-            normalizedImpact + Offset(dx * endFrac, dy * endFrac),
-            trajPaint,
-          );
-          drawn += dashLen + gapLen;
-        }
-      }
-    }
-
-    // Oyuncunun tahmini
+    // Oyuncunun işareti (crosshair)
     if (guessPosition != null) {
-      // Konum secici dairesi
       final crosshairPaint = Paint()
         ..color = const Color(0xFF03DAC6)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2;
 
-      canvas.drawCircle(guessPosition!, 20, crosshairPaint);
-      canvas.drawCircle(guessPosition!, 3, Paint()..color = const Color(0xFF03DAC6));
+      canvas.drawCircle(guessPosition!, 22, crosshairPaint);
+      canvas.drawCircle(guessPosition!, 4, Paint()..color = const Color(0xFF03DAC6));
 
       // Çapraz çizgiler
       canvas.drawLine(
-        guessPosition! - const Offset(28, 0),
-        guessPosition! + const Offset(28, 0),
+        guessPosition! - const Offset(32, 0),
+        guessPosition! + const Offset(32, 0),
         crosshairPaint,
       );
       canvas.drawLine(
-        guessPosition! - const Offset(0, 28),
-        guessPosition! + const Offset(0, 28),
+        guessPosition! - const Offset(0, 32),
+        guessPosition! + const Offset(0, 32),
         crosshairPaint,
       );
 
-      // Açı göstergesi
-      final angleRad = guessAngle * pi / 180;
-      final arrowEnd = guessPosition! + Offset(cos(angleRad) * 40, sin(angleRad) * 40);
-      final arrowPaint = Paint()
-        ..color = const Color(0xFFD4A847)
-        ..strokeWidth = 2;
-      canvas.drawLine(guessPosition!, arrowEnd, arrowPaint);
-
-      // Ok ucu
-      final arrowHeadPaint = Paint()
-        ..color = const Color(0xFFD4A847)
-        ..style = PaintingStyle.fill;
-      final headAngle1 = angleRad + 2.6;
-      final headAngle2 = angleRad - 2.6;
-      final path = Path()
-        ..moveTo(arrowEnd.dx, arrowEnd.dy)
-        ..lineTo(arrowEnd.dx + cos(headAngle1) * 10, arrowEnd.dy + sin(headAngle1) * 10)
-        ..lineTo(arrowEnd.dx + cos(headAngle2) * 10, arrowEnd.dy + sin(headAngle2) * 10)
-        ..close();
-      canvas.drawPath(path, arrowHeadPaint);
-
-      // Koordinat etiketi
-      final coordText = TextPainter(
+      // "SEÇİLDİ" etiketi
+      final labelText = TextPainter(
         text: TextSpan(
-          text: '(${guessPosition!.dx.toInt()}, ${guessPosition!.dy.toInt()})',
+          text: 'SEÇİLDİ',
           style: GoogleFonts.robotoMono(
-            color: const Color(0xFF03DAC6).withOpacity(0.8),
-            fontSize: 10,
+            color: const Color(0xFF03DAC6),
+            fontSize: 9,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
           ),
         ),
         textDirection: ui.TextDirection.ltr,
       )..layout();
-      coordText.paint(canvas, guessPosition! + const Offset(24, 8));
+      labelText.paint(canvas, guessPosition! + const Offset(26, -4));
     }
+  }
+
+  /// Şüpheli gölgeler — oyuncunun doğruyu aralarından seçmesi için
+  /// Doğru anomali impactPoint'te, yanlış ipuçları rastgele yerlerde
+  void _drawSuspiciousShadows(Canvas canvas, Size size) {
+    // Doğru anomali (impactPoint) — biraz daha belirgin ama tek değil
+    if (impactPoint != null) {
+      final normalizedImpact = Offset(
+        impactPoint!.dx / 900 * size.width,
+        impactPoint!.dy / 600 * size.height,
+      );
+      _drawShadow(canvas, normalizedImpact, 18, const Color(0xFFE0E0E0), 0.55);
+    }
+
+    // Sabit yanlış anomaliler — hep aynı yerlerde (seed gibi davranır)
+    final fakeSpots = [
+      Offset(size.width * 0.32, size.height * 0.28),
+      Offset(size.width * 0.68, size.height * 0.35),
+      Offset(size.width * 0.25, size.height * 0.62),
+      Offset(size.width * 0.72, size.height * 0.58),
+      Offset(size.width * 0.5, size.height * 0.75),
+    ];
+
+    for (final spot in fakeSpots) {
+      _drawShadow(canvas, spot, 12, const Color(0xFFBDBDBD), 0.25);
+    }
+  }
+
+  /// Bir şüpheli "gölge" çiz — radial gradient-like daire
+  void _drawShadow(Canvas canvas, Offset center, double radius, Color color, double opacity) {
+    final paint = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          color.withOpacity(opacity),
+          color.withOpacity(opacity * 0.5),
+          color.withOpacity(0),
+        ],
+        stops: const [0.0, 0.5, 1.0],
+      ).createShader(Rect.fromCircle(center: center, radius: radius));
+
+    canvas.drawCircle(center, radius, paint);
+
+    // İnce çember etrafında
+    final borderPaint = Paint()
+      ..color = color.withOpacity(opacity * 0.3)
+      ..strokeWidth = 0.8
+      ..style = PaintingStyle.stroke;
+    canvas.drawCircle(center, radius * 0.7, borderPaint);
+  }
+
+  /// Şematik akciğer/göğüs kafesi — tıbbi görüntüleme görünümü için placeholder
+  void _drawChestXray(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final bodyW = size.width * 0.75;
+    final bodyH = size.height * 0.85;
+
+    // Göğüs kafesi arka plan (hafif parlama)
+    final bodyPaint = Paint()
+      ..color = const Color(0xFF1A2F4A).withOpacity(0.4)
+      ..style = PaintingStyle.fill;
+    final bodyRect = RRect.fromRectAndRadius(
+      Rect.fromCenter(center: Offset(cx, cy), width: bodyW, height: bodyH),
+      const Radius.circular(80),
+    );
+    canvas.drawRRect(bodyRect, bodyPaint);
+
+    // Sol akciğer
+    final lungPaint = Paint()
+      ..color = const Color(0xFF2A4A6A).withOpacity(0.5)
+      ..style = PaintingStyle.fill;
+    final leftLung = Path()
+      ..moveTo(cx - bodyW * 0.35, cy - bodyH * 0.3)
+      ..quadraticBezierTo(cx - bodyW * 0.48, cy, cx - bodyW * 0.38, cy + bodyH * 0.3)
+      ..quadraticBezierTo(cx - bodyW * 0.2, cy + bodyH * 0.25, cx - bodyW * 0.15, cy - bodyH * 0.2)
+      ..quadraticBezierTo(cx - bodyW * 0.2, cy - bodyH * 0.35, cx - bodyW * 0.35, cy - bodyH * 0.3)
+      ..close();
+    canvas.drawPath(leftLung, lungPaint);
+
+    // Sağ akciğer (ayna)
+    final rightLung = Path()
+      ..moveTo(cx + bodyW * 0.35, cy - bodyH * 0.3)
+      ..quadraticBezierTo(cx + bodyW * 0.48, cy, cx + bodyW * 0.38, cy + bodyH * 0.3)
+      ..quadraticBezierTo(cx + bodyW * 0.2, cy + bodyH * 0.25, cx + bodyW * 0.15, cy - bodyH * 0.2)
+      ..quadraticBezierTo(cx + bodyW * 0.2, cy - bodyH * 0.35, cx + bodyW * 0.35, cy - bodyH * 0.3)
+      ..close();
+    canvas.drawPath(rightLung, lungPaint);
+
+    // Kaburga çizgileri (kemik efekti)
+    final ribPaint = Paint()
+      ..color = Colors.white.withOpacity(0.12)
+      ..strokeWidth = 1.5
+      ..style = PaintingStyle.stroke;
+
+    for (int i = 0; i < 8; i++) {
+      final y = cy - bodyH * 0.35 + i * (bodyH * 0.08);
+      // Sol kaburga
+      final leftRib = Path()
+        ..moveTo(cx - bodyW * 0.05, y)
+        ..quadraticBezierTo(
+          cx - bodyW * 0.3, y + 4,
+          cx - bodyW * 0.42, y + 10,
+        );
+      canvas.drawPath(leftRib, ribPaint);
+      // Sağ kaburga
+      final rightRib = Path()
+        ..moveTo(cx + bodyW * 0.05, y)
+        ..quadraticBezierTo(
+          cx + bodyW * 0.3, y + 4,
+          cx + bodyW * 0.42, y + 10,
+        );
+      canvas.drawPath(rightRib, ribPaint);
+    }
+
+    // Omurga (merkez dikey çizgi)
+    final spinePaint = Paint()
+      ..color = Colors.white.withOpacity(0.15)
+      ..strokeWidth = 3;
+    canvas.drawLine(
+      Offset(cx, cy - bodyH * 0.4),
+      Offset(cx, cy + bodyH * 0.4),
+      spinePaint,
+    );
+
+    // Kalp silueti (sol alt)
+    final heartPaint = Paint()
+      ..color = const Color(0xFF4A3A5A).withOpacity(0.3)
+      ..style = PaintingStyle.fill;
+    canvas.drawOval(
+      Rect.fromCenter(
+        center: Offset(cx - bodyW * 0.08, cy + bodyH * 0.1),
+        width: bodyW * 0.22,
+        height: bodyH * 0.28,
+      ),
+      heartPaint,
+    );
+
+    // Etiket: "PA AKCİĞER GRAFİSİ"
+    final labelPainter = TextPainter(
+      text: TextSpan(
+        text: 'PA AKCİĞER GRAFİSİ',
+        style: GoogleFonts.robotoMono(
+          color: Colors.white.withOpacity(0.25),
+          fontSize: 11,
+          letterSpacing: 2,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      textDirection: ui.TextDirection.ltr,
+    )..layout();
+    labelPainter.paint(canvas, Offset(16, 16));
+
+    // Sağ alt köşe: ölçek çizgisi
+    final scalePaint = Paint()
+      ..color = Colors.white.withOpacity(0.3)
+      ..strokeWidth = 2;
+    canvas.drawLine(
+      Offset(size.width - 60, size.height - 20),
+      Offset(size.width - 20, size.height - 20),
+      scalePaint,
+    );
+    final scaleText = TextPainter(
+      text: TextSpan(
+        text: '10 cm',
+        style: GoogleFonts.robotoMono(
+          color: Colors.white.withOpacity(0.3),
+          fontSize: 9,
+        ),
+      ),
+      textDirection: ui.TextDirection.ltr,
+    )..layout();
+    scaleText.paint(canvas, Offset(size.width - 52, size.height - 38));
   }
 
   @override

@@ -74,10 +74,6 @@ class _EthicalDilemmaDialogState extends ConsumerState<EthicalDilemmaDialog>
     widget.onChoiceMade?.call(choice);
   }
 
-  void _closeDialog(BuildContext dialogContext) {
-    Navigator.of(dialogContext, rootNavigator: true).pop();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -101,7 +97,7 @@ class _EthicalDilemmaDialogState extends ConsumerState<EthicalDilemmaDialog>
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: _showConsequence
-                ? _buildConsequenceView(context)
+                ? _buildConsequenceView()
                 : _buildChoiceView(),
           ),
         ),
@@ -243,7 +239,7 @@ class _EthicalDilemmaDialogState extends ConsumerState<EthicalDilemmaDialog>
     );
   }
 
-  Widget _buildConsequenceView(BuildContext dialogContext) {
+  Widget _buildConsequenceView() {
     final choice = _selectedChoice!;
     final isEthical = choice.isEthical;
     final color = isEthical ? _teal : _red;
@@ -341,7 +337,9 @@ class _EthicalDilemmaDialogState extends ConsumerState<EthicalDilemmaDialog>
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () => _closeDialog(dialogContext),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: color.withOpacity(0.15),
               foregroundColor: color,

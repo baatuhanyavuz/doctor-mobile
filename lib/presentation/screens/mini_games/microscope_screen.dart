@@ -38,10 +38,7 @@ class _MicroscopeScreenState extends ConsumerState<MicroscopeScreen>
   String? _selectedDiagnosis;
   bool _showDiagnosisStep = false;
 
-  // Zoom kontrolü
-  final TransformationController _transformController =
-      TransformationController();
-  double _currentZoom = 1.0;
+  // Zoom kaldırıldı — hücreler ekrana fit olarak gösteriliyor
 
   // Animasyon
   late AnimationController _scanLineController;
@@ -85,7 +82,6 @@ class _MicroscopeScreenState extends ConsumerState<MicroscopeScreen>
   void dispose() {
     _timer?.cancel();
     _scanLineController.dispose();
-    _transformController.dispose();
     super.dispose();
   }
 
@@ -392,22 +388,6 @@ class _MicroscopeScreenState extends ConsumerState<MicroscopeScreen>
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          // Zoom göstergesi
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.05),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              '${_currentZoom.toStringAsFixed(1)}x',
-              style: GoogleFonts.robotoMono(
-                fontSize: 12,
-                color: Colors.white54,
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -423,121 +403,71 @@ class _MicroscopeScreenState extends ConsumerState<MicroscopeScreen>
         color: Colors.black,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.white.withOpacity(0.1), width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: _teal.withOpacity(0.05),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
-        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14),
-        child: Stack(
-          children: [
-            // Hücre görüntüleyici
-            InteractiveViewer(
-              transformationController: _transformController,
-              minScale: 1.0,
-              maxScale: 4.0,
-              onInteractionUpdate: (details) {
-                setState(() {
-                  _currentZoom = _transformController.value.getMaxScaleOnAxis();
-                });
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Ekrana sığdır — hücreler ekran boyutuna ölçeklenir
+            final viewW = constraints.maxWidth;
+            final viewH = constraints.maxHeight;
+            final scaleX = viewW / _fieldWidth;
+            final scaleY = viewH / _fieldHeight;
+            final scale = min(scaleX, scaleY);
+
+            return GestureDetector(
+              onTapUp: (details) {
+                if (_isSubmitted || _showDiagnosisStep) return;
+                // Ekran koordinatını hücre koordinatına çevir
+                final tapX = details.localPosition.dx / scale;
+                final tapY = details.localPosition.dy / scale;
+
+                double minDist = double.infinity;
+                int closestIdx = -1;
+                const tapRadius = 35.0;
+
+                for (int i = 0; i < _cells.length; i++) {
+                  final cell = _cells[i];
+                  final dist = sqrt(pow(cell.x - tapX, 2) + pow(cell.y - tapY, 2));
+                  if (dist < cell.radius + tapRadius && dist < minDist) {
+                    minDist = dist;
+                    closestIdx = i;
+                  }
+                }
+
+                if (closestIdx >= 0) {
+                  _handleCellTap(closestIdx);
+                }
               },
-              child: GestureDetector(
-                onTapUp: (details) {
-                  // Ekran koordinatlarından sahne koordinatlarına dönüştür
-                  final renderBox = context.findRenderObject() as RenderBox?;
-                  if (renderBox == null) return;
-
-                  final localPos = details.localPosition;
-                  // InteractiveViewer transform'u hesaba kat
-                  final matrix = _transformController.value;
-                  final invertedMatrix = Matrix4.inverted(matrix);
-                  final scenePoint = MatrixUtils.transformPoint(
-                      invertedMatrix,
-                      Offset(localPos.dx, localPos.dy));
-
-                  // En yakın hücreyi bul
-                  _handleTapAtPoint(scenePoint, renderBox.size);
-                },
-                child: CustomPaint(
-                  size: const Size(_fieldWidth, _fieldHeight),
-                  painter: _MicroscopePainter(
-                    cells: _cells,
-                    markedIndices: _markedCellIndices,
-                    isBlood: isBlood,
-                    isSubmitted: _isSubmitted,
-                    abnormalCellType: mg.abnormalCellType ?? 'Anormal Hücre',
-                  ),
-                ),
-              ),
-            ),
-
-            // Tarama çizgisi animasyonu
-            if (!_isSubmitted)
-              AnimatedBuilder(
-                animation: _scanLineController,
-                builder: (context, child) {
-                  return Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Opacity(
-                      opacity: 0.1,
-                      child: Container(
-                        height: 2,
-                        margin: EdgeInsets.only(
-                          top: _scanLineController.value *
-                              (_fieldHeight - 2),
-                        ),
-                        color: _teal,
-                      ),
+              child: Stack(
+                children: [
+                  // Hücre alanı — ekrana fit
+                  CustomPaint(
+                    size: Size(viewW, viewH),
+                    painter: _MicroscopePainter(
+                      cells: _cells,
+                      markedIndices: _markedCellIndices,
+                      isBlood: isBlood,
+                      isSubmitted: _isSubmitted,
+                      abnormalCellType: mg.abnormalCellType ?? 'Anormal Hücre',
+                      scaleX: scale,
+                      scaleY: scale,
                     ),
-                  );
-                },
-              ),
+                  ),
 
-            // Vignet efekti (daire maskeleme)
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _VignettePainter(),
+                  // Vignet efekti
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: _VignettePainter(),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
-  }
-
-  void _handleTapAtPoint(Offset scenePoint, Size viewSize) {
-    // Ekran boyutundan sahne boyutuna ölçekle
-    final scaleX = _fieldWidth / viewSize.width;
-    final scaleY = _fieldHeight / viewSize.height;
-    final scale = max(scaleX, scaleY);
-
-    final adjustedX = scenePoint.dx * scale;
-    final adjustedY = scenePoint.dy * scale;
-
-    // En yakın hücreyi bul (dokunma mesafesi dahilinde)
-    double minDist = double.infinity;
-    int closestIdx = -1;
-    final tapRadius = 30.0 / _currentZoom; // Zoom'a göre ayarla
-
-    for (int i = 0; i < _cells.length; i++) {
-      final cell = _cells[i];
-      final dist =
-          sqrt(pow(cell.x - adjustedX, 2) + pow(cell.y - adjustedY, 2));
-      if (dist < cell.radius + tapRadius && dist < minDist) {
-        minDist = dist;
-        closestIdx = i;
-      }
-    }
-
-    if (closestIdx >= 0) {
-      _handleCellTap(closestIdx);
-    }
   }
 
   Widget _buildDiagnosisPanel(MiniGameDef mg) {
@@ -874,6 +804,8 @@ class _MicroscopePainter extends CustomPainter {
   final bool isBlood;
   final bool isSubmitted;
   final String abnormalCellType;
+  final double scaleX;
+  final double scaleY;
 
   _MicroscopePainter({
     required this.cells,
@@ -881,28 +813,37 @@ class _MicroscopePainter extends CustomPainter {
     required this.isBlood,
     required this.isSubmitted,
     required this.abnormalCellType,
+    this.scaleX = 1.0,
+    this.scaleY = 1.0,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Scale uygula — tüm hücre koordinatları ölçeklenir
+    canvas.save();
+    canvas.scale(scaleX, scaleY);
+
+    final scaledW = size.width / scaleX;
+    final scaledH = size.height / scaleY;
+
     // Arka plan: koyu lacivert (mikroskop görüntüsü)
     final bgPaint = Paint()
       ..color = isBlood
           ? const Color(0xFF0D1117)
           : const Color(0xFF0A0F18);
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), bgPaint);
+    canvas.drawRect(Rect.fromLTWH(0, 0, scaledW, scaledH), bgPaint);
 
     // Grid çizgileri (graduasyon efekti)
     final gridPaint = Paint()
       ..color = Colors.white.withOpacity(0.02)
       ..strokeWidth = 0.5;
-    for (double i = 0; i < size.width; i += 50) {
+    for (double i = 0; i < scaledW; i += 50) {
       canvas.drawLine(
-          Offset(i, 0), Offset(i, size.height), gridPaint);
+          Offset(i, 0), Offset(i, scaledH), gridPaint);
     }
-    for (double i = 0; i < size.height; i += 50) {
+    for (double i = 0; i < scaledH; i += 50) {
       canvas.drawLine(
-          Offset(0, i), Offset(size.width, i), gridPaint);
+          Offset(0, i), Offset(scaledW, i), gridPaint);
     }
 
     for (int i = 0; i < cells.length; i++) {
@@ -920,6 +861,8 @@ class _MicroscopePainter extends CustomPainter {
         _drawMissedIndicator(canvas, cell);
       }
     }
+
+    canvas.restore();
   }
 
   void _drawNormalCell(Canvas canvas, _CellData cell, bool isMarked) {

@@ -12,6 +12,8 @@ import '../../providers/auth_state.dart';
 import '../../providers/credit_providers.dart';
 import '../../providers/notification_providers.dart';
 import '../../providers/achievement_provider.dart';
+import '../../providers/energy_provider.dart';
+import '../../providers/unlocked_cases_provider.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../domain/entities/user.dart';
 
@@ -217,32 +219,65 @@ class _AvatarSection extends StatelessWidget {
 // STATS ROW
 // ═══════════════════════════════════════════════════════════════════
 
-class _StatsRow extends StatelessWidget {
+class _StatsRow extends ConsumerWidget {
   final User user;
   const _StatsRow({required this.user});
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final energy = ref.watch(energyProvider);
+    final unlockedCases = ref.watch(unlockedCasesProvider);
+
+    return Column(
       children: [
-        Expanded(
-          child: _StatCard(
-            icon: Icons.military_tech_outlined,
-            iconColor: ProfileScreen._gold,
-            label: 'profile.level'.tr(),
-            value: '${user.level}',
-            borderColor: ProfileScreen._gold,
-          ),
+        // Üst sıra: Seviye + XP
+        Row(
+          children: [
+            Expanded(
+              child: _StatCard(
+                icon: Icons.military_tech_outlined,
+                iconColor: ProfileScreen._gold,
+                label: 'profile.level'.tr(),
+                value: '${user.level}',
+                borderColor: ProfileScreen._gold,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _StatCard(
+                icon: Icons.auto_awesome_outlined,
+                iconColor: ProfileScreen._teal,
+                label: 'profile.total_xp'.tr(),
+                value: '${user.totalXp}',
+                borderColor: ProfileScreen._teal,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _StatCard(
-            icon: Icons.auto_awesome_outlined,
-            iconColor: ProfileScreen._teal,
-            label: 'profile.total_xp'.tr(),
-            value: '${user.totalXp}',
-            borderColor: ProfileScreen._teal,
-          ),
+        const SizedBox(height: 16),
+        // Alt sıra: Enerji + Açık vakalar
+        Row(
+          children: [
+            Expanded(
+              child: _StatCard(
+                icon: Icons.favorite,
+                iconColor: const Color(0xFFEF5350),
+                label: 'ENERJİ',
+                value: '${energy.energy}/${energy.maxEnergy}',
+                borderColor: const Color(0xFFEF5350),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _StatCard(
+                icon: Icons.lock_open_rounded,
+                iconColor: const Color(0xFF66BB6A),
+                label: 'AÇIK VAKA',
+                value: '${unlockedCases.length}',
+                borderColor: const Color(0xFF66BB6A),
+              ),
+            ),
+          ],
         ),
       ],
     );

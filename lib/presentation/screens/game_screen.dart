@@ -36,6 +36,8 @@ class GameScreen extends ConsumerStatefulWidget {
 
 class _GameScreenState extends ConsumerState<GameScreen> {
   bool _startDilemmaShown = false;
+  bool _solveDilemmaShown = false;
+  bool _tabListenerAdded = false;
 
   /// on_game_start etik ikilemlerini tetikle
   void _triggerStartDilemmas(List<EthicalDilemma> dilemmas) {
@@ -177,15 +179,21 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           child: DefaultTabController(
             length: tabCount,
             child: Builder(builder: (tabCtx) {
-              // Tab değişiminde before_solution tetikleyici
-              final tabController = DefaultTabController.of(tabCtx);
-              tabController.addListener(() {
-                if (!tabController.indexIsChanging) return;
-                final solveTabIndex = tabCount - 1;
-                if (tabController.index == solveTabIndex && hasEthicalDilemmas) {
-                  _triggerBeforeSolveDilemmas(gameCase.ethicalDilemmas);
-                }
-              });
+              // Tab değişiminde before_solution tetikleyici (sadece 1 kez ekle)
+              if (!_tabListenerAdded && hasEthicalDilemmas) {
+                _tabListenerAdded = true;
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  final tabController = DefaultTabController.of(tabCtx);
+                  tabController.addListener(() {
+                    if (!tabController.indexIsChanging) return;
+                    final solveTabIndex = tabCount - 1;
+                    if (tabController.index == solveTabIndex && !_solveDilemmaShown) {
+                      _solveDilemmaShown = true;
+                      _triggerBeforeSolveDilemmas(gameCase.ethicalDilemmas);
+                    }
+                  });
+                });
+              }
               return Scaffold(
               backgroundColor: const Color(0xFF0A1628),
               appBar: AppBar(

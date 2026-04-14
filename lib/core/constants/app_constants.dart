@@ -36,6 +36,15 @@ class AppConstants {
   static const String dilemmaReputationEndpoint = '/api/dilemma/reputation';
   static const String retestEndpoint = '/api/dilemma/retest';
 
+  // ─── Energy & Unlock Endpoints ─────────────────────────────────
+  static const String energyEndpoint = '/api/energy';
+  static const String energyConsumeEndpoint = '/api/energy/consume';
+  static const String energyRefillAdEndpoint = '/api/energy/refill-with-ad';
+  static const String unlockedCasesEndpoint = '/api/energy/unlocked-cases';
+  static const String initializeUnlocksEndpoint = '/api/energy/initialize-unlocks';
+  static const String unlockWithAdEndpoint = '/api/energy/unlock-with-ad';
+  static const String unlockNextEndpoint = '/api/energy/unlock-next';
+
   // ─── Credits Endpoints ─────────────────────────────────────────
   static const String creditsBalanceEndpoint = '/api/credits/balance';
   static const String creditsPackagesEndpoint = '/api/credits/packages';
