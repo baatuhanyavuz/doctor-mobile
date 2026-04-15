@@ -1,7 +1,7 @@
 name: doctor
-description: "Doctor Game"
+description: "Doktor: Tanı Dosyaları"
 publish_to: 'none'
-version: 1.0.5+6
+version: 1.0.1+2
 
 environment:
   sdk: ^3.9.2
@@ -76,6 +76,18 @@ dev_dependencies:
   # App Icon Generation
   flutter_launcher_icons: ^0.14.1
 
+  # Splash Screen Generation
+  flutter_native_splash: ^2.4.3
+
+flutter_native_splash:
+  color: "#0A1628"
+  image: assets/icon/icon_foreground.png
+  android_12:
+    color: "#0A1628"
+    image: assets/icon/icon_foreground.png
+    icon_background_color: "#0A1628"
+  fullscreen: false
+
 flutter_launcher_icons:
   android: "ic_launcher"
   ios: true
@@ -102,10 +114,5 @@ flutter:
     - assets/data/
     - assets/data/cases/
     - assets/images/
-    - assets/images/cases/
-    - assets/images/case_003/
-    - assets/images/case_004/
-    - assets/images/suspects/
-    - assets/images/evidences/
     - assets/audio/
 

@@ -89,7 +89,7 @@ class AppConstants {
 
   // ─── Google Sign-In ───────────────────────────────────────────
   // Android/Installed Client ID (from Google Cloud Console)
-  static const String googleServerClientId = '449009688447-16mfge7mn89tibids6vmhqpi93jl9bi4.apps.googleusercontent.com';
+  static const String googleServerClientId = '901755503851-tjpcpecvsdbfffvde9031v9phgldm9f1.apps.googleusercontent.com';
 
   // ─── Secure Storage Keys ──────────────────────────────────────
   static const String jwtTokenKey = 'jwt_token';

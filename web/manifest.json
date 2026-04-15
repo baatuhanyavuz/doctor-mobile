@@ -1,7 +1,7 @@
 {
-    "name": "Doctor: Suç Dosyaları",
-    "short_name": "Doctor",
-    "description": "İnteraktif cinayet çözme oyunu. Kanıtları incele, tanıkları sorgula ve katili bul!",
+    "name": "Doktor: Tanı Dosyaları",
+    "short_name": "Doktor",
+    "description": "İnteraktif tıbbi tanı oyunu. Hasta muayene et, tahlil incele, doğru tanıyı koy!",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0A1628",
@@ -20,7 +20,7 @@
         {
             "name": "Vakaları Gör",
             "short_name": "Vakalar",
-            "description": "Tüm suç dosyalarını incele",
+            "description": "Tüm tanı dosyalarını incele",
             "url": "/",
             "icons": [
                 {

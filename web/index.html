@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-<html lang="tr">
-
-<head>
+<!DOCTYPE html><html lang="tr"><head>
   <!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
@@ -11,30 +8,28 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description"
-    content="Doctor: Suç Dosyaları - İnteraktif cinayet çözme oyunu. Kanıtları incele, tanıkları sorgula ve katili bul!">
-  <meta name="theme-color" content="#ff4757">
-  <meta name="keywords" content="doctor, cinayet, oyun, bulmaca, suç, soruşturma, interaktif">
-  <meta name="author" content="Doctor Games">
+  <meta name="description" content="Doktor: Tanı Dosyaları - İnteraktif tıbbi tanı oyunu. Hasta muayene et, tahlil incele, doğru tanıyı koy!">
+  <meta name="theme-color" content="#00BFA5">
+  <meta name="keywords" content="doktor, tıp, tanı, oyun, hasta, muayene, eğitim, interaktif">
+  <meta name="author" content="Gloombit">
 
   <!-- iOS/Safari PWA Meta Tags -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Doctor">
+  <meta name="apple-mobile-web-app-title" content="Doktor">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Google Identity Services (Modern Web) -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://accounts.google.com/gsi/client" async="" defer=""></script>
 
   <!-- Google Sign-In Config for google_sign_in_web -->
-  <meta name="google-signin-client_id"
-    content="449009688447-16mfge7mn89tibids6vmhqpi93jl9bi4.apps.googleusercontent.com">
+  <meta name="google-signin-client_id" content="449009688447-16mfge7mn89tibids6vmhqpi93jl9bi4.apps.googleusercontent.com">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="icon" type="image/png" href="favicon.png">
 
-  <title>Doctor: Suç Dosyaları</title>
+  <title>Doktor: Tanı Dosyaları</title>
   <link rel="manifest" href="manifest.json">
 
   <!-- Noir Detective Splash Screen Styles -->
@@ -348,31 +343,84 @@
       }
     }
   </style>
+  
+  
+  <style id="splash-screen-style">
+    html {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      background-color: #0A1628;
+          background-size: 100% 100%;
+    }
+
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+
+    .contain {
+      display:block;
+      width:100%; height:100%;
+      object-fit: contain;
+    }
+
+    .stretch {
+      display:block;
+      width:100%; height:100%;
+    }
+
+    .cover {
+      display:block;
+      width:100%; height:100%;
+      object-fit: cover;
+    }
+
+    .bottom {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      -ms-transform: translate(-50%, 0);
+      transform: translate(-50%, 0);
+    }
+
+    .bottomLeft {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+
+    .bottomRight {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+  </style>
+  <script id="splash-screen-script">
+    function removeSplashFromWeb() {
+      document.getElementById("splash")?.remove();
+      document.getElementById("splash-branding")?.remove();
+      document.body.style.background = "transparent";
+    }
+  </script>
 </head>
 
 <body>
+  <picture id="splash">
+      <source srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" media="(prefers-color-scheme: light)">
+      <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
+      <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
+  </picture>
+  
   <!-- Noir Detective Splash Screen -->
-  <div id="splash">
-    <div class="drip"></div>
-    <div class="drip"></div>
-    <div class="drip"></div>
-    <div class="drip"></div>
-
-    <div class="magnifier">
-      <div class="magnifier-glass">
-        <div class="fingerprint"></div>
-      </div>
-      <div class="magnifier-handle"></div>
-    </div>
-
-    <div class="title">Doctor</div>
-    <div class="subtitle">Suç Dosyaları</div>
-
-    <div class="loading-text">Dosyalar yükleniyor</div>
-    <div class="loading-bar-container">
-      <div class="loading-bar"></div>
-    </div>
-  </div>
+  
 
   <script>
     // Force CanvasKit renderer for high-quality fonts and animations
@@ -426,7 +474,7 @@
     });
   </script>
 
-  <script src="flutter_bootstrap.js" async></script>
-</body>
+  <script src="flutter_bootstrap.js" async=""></script>
 
-</html>
+
+</body></html>
